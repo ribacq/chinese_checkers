@@ -1,3 +1,5 @@
+#ifndef DATA_STRUCT_H_INCLUDED
+#define DATA_STRUCT_H_INCLUDED
 #include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
@@ -15,7 +17,6 @@ typedef struct cube{
 } Cube;
 
 typedef enum content { EMPTY, RED, GREEN, BLUE, YELLOW, WHITE, PURPLE, FORBIDDEN } Content;
-const char DISP_CHARS[8] = {'o', 'r', 'g', 'b', 'y', 'w', 'p', ' '};
 
 //Coordinates conversion
 Cube hex_to_cube(Hex);
@@ -25,3 +26,6 @@ Hex cube_to_hex(Cube);
 Content* init_board(int);
 void test_print_board(Content*, int);
 void print_board(Content*, int);
+
+#endif
+

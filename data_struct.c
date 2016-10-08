@@ -2,7 +2,7 @@
 
 /*
  * Hexes are located with cube coordinates.
- * Ressource used: www.redblobgames.com/grids/hexagons
+ * Ressource used: http://www.redblobgames.com/grids/hexagons
  */
 
 //Coordinates conversion
@@ -22,6 +22,8 @@ Hex cube_to_hex(Cube c){
 }
 
 //Board
+const char DISP_CHARS[8] = {'o', 'r', 'g', 'b', 'y', 'w', 'p', ' '};
+
 Content* init_board(int side){
 	/* Contents are stored in a linear table initialized with by default
 	 * FORBIDDEN in the corners and EMPTY elsewhere, in order for the
