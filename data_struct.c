@@ -6,121 +6,77 @@
  */
 
 //Coordinates conversion
+Stor hex_to_stor(int side, Hex h){
+	Stor s;
+	s.i = h.r + (side-1);
+	s.j = h.q + (side-1) + (h.r<0 ? h.r : 0);
+	return s;
+}
+
+Hex stor_to_hex(int side, Stor s){
+	Hex h;
+	h.r = s.i - (side-1);
+	h.q = s.j - (side-1) - (h.r<0 ? h.r : 0);
+	return h;
+}
+
 Cube hex_to_cube(Hex h){
 	Cube c;
-	c.x = h.r;
-	c.y = h.q;
-	c.z = 0 - h.r - h.q;
+	c.z = h.r;
+	c.x = h.q;
+	c.y = 0 - c.x - c.z;
 	return c;
 }
 
 Hex cube_to_hex(Cube c){
 	Hex h;
-	h.r = c.x;
-	h.q = c.y;
+	h.r = c.z;
+	h.q = c.x;
 	return h;
 }
 
-//Board
-const char DISP_CHARS[8] = {'o', 'r', 'g', 'b', 'y', 'w', 'p', ' '};
+int distance(Hex h1, Hex h2){
+	Cube c1 = hex_to_cube(h1);
+	Cube c2 = hex_to_cube(h2);
+	return (abs(c1.x-c2.x)+abs(c1.y-c2.y)+abs(c1.z-c2.z))/2;
+}
 
-Content* init_board(int side){
-	/* Contents are stored in a linear table initialized with by default
-	 * FORBIDDEN in the corners and EMPTY elsewhere, in order for the
-	 * board to be an hexagon.
+//Board
+Content** init_board(int side){
+	/* Contents are stored in a two-dimension table initialized with by
+	 * default EMPTY everywhere, in order for the board to be an hexagon.
 	 */
 
-	int dim = 2*side-1;
-	Content* b = (Content*) malloc(sizeof(Content)*dim*dim);
-	int i, j;
-	for(i=0; i<dim; i++){
-		for(j=0; j<dim; j++){
-			if(j<side-1-i || j>3*side-3-i){
-				b[i*dim+j] = FORBIDDEN;
-			}else{
-				b[i*dim+j] = EMPTY;
-			}
-		}
+	int total_nb = 3*side*side-3*side+1;
+	int diagonal = 2*side-1;
+
+	Content** b = (Content**) malloc(sizeof(Content)*total_nb);
+	
+	int i;
+	for(i=0; i<diagonal; i++){
+		b[i] = (Content*) malloc(sizeof(Content)*linew(side, i));
 	}
 	return b;
 }
 
-void test_print_board(Content* b, int side){
-	/* Test prints the board to standard output using the format below:
-	 * For example if side is 4:
-	 *
-	 *     0   1   2   3   4   5   6
-	 * 0 |   |   |   | - | - | - | - |
-	 * 1 |   |   | - | - | - | - | - |
-	 * 2 |   | - | - | - | - | - | - |
-	 * 3 | - | - | - | - | - | - | - |
-	 * 4 | - | - | - | - | - | - |   |
-	 * 5 | - | - | - | - | - |   |   |
-	 * 6 | - | - | - | - |   |   |   |
+int linew(int side, int row){
+	/* Returns the width of given row in a hexagon of given side length.
 	 */
-
-	int dim = 2*side-1;
-	int i, j;
-	for(i=0; i<dim; i++){
-		printw("|");
-		for(j=0; j<dim; j++){
-			printw(" ");
-			if(b[i*dim+j] == FORBIDDEN){
-				printw("#");
-			}else if(b[i*dim+j] == EMPTY){
-				printw("-");
-			}else{
-				printw(" ");
-			}
-			printw(" |");
-		}
-		printw("\n");
-	}
-	return;
+	return 2*side-1-abs(side-row-1);
 }
 
-void print_board(Content* b, int side){
-	/* Prints board porperly
+Content get_ct(Content** b, int side, Hex h){
+	/* Returns the content of given hex
 	 */
+	Stor s = hex_to_stor(side, h);
+	return b[s.i][s.j];
+}
 
-	int dim = 2*side-1;
-	int i, j, k;
-	for(i=0; i<dim; i++){
-		//For each line, display first the elements
-		for(k=0; k<side-1-i || k<i-side+1; k++){
-			//Line-indent
-			printw("  ");
-		}
-		for(j=0; j<dim; j++){
-			//Display of rows
-			if(b[i*dim+j] != FORBIDDEN){
-				printw("%c", DISP_CHARS[b[i*dim+j]]);
-				if(j<dim-1 && b[i*dim+j+1] != FORBIDDEN){
-					printw("---");
-				}
-			}
-		}
-		printw("\n");
-		//And on the next line, the slashes and backslashes connectors
-		if(i<dim-1){
-			for(k=0; k<side-2-i || k<i-side+1; k++){
-				//Line-indent
-				printw("  ");
-			}
-			printw(" ");
-			for(j=0; j<dim-1; j++){
-				if(b[i*dim+j+1] != FORBIDDEN){
-					if(i<side-1){
-						printw("/ \\ ");
-					}else{
-						printw("\\ / ");
-					}
-				}
-			}
-			printw("\n");
-		}
-	}
-
+void set_ct(Content** b, int side, Hex h, Content c){
+	/* Sets the content of given Hex
+	 */
+	Stor s = hex_to_stor(side, h);
+	b[s.i][s.j] = c;
 	return;
 }
 
