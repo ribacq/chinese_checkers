@@ -5,6 +5,35 @@
  * Ressource used: http://www.redblobgames.com/grids/hexagons
  */
 
+//Coordinates data structures
+Stor new_stor(int i, int j){
+	/* Create new Stor using given coordinates
+	 */
+	Stor s;
+	s.i = i;
+	s.j = j;
+	return s;
+}
+
+Hex new_hex(int r, int q){
+	/* Create new Hex using given coordinates
+	 */
+	Hex h;
+	h.r = r;
+	h.q = q;
+	return h;
+}
+
+Cube new_cube(int x, int y, int z){
+	/* Create new Cube using given coordinates
+	 */
+	Cube c;
+	c.x = x;
+	c.y = y;
+	c.z = z;
+	return c;
+}
+
 //Coordinates conversion
 Stor hex_to_stor(int side, Hex h){
 	Stor s;
@@ -82,6 +111,7 @@ int boardh(int side){
 
 int linew(int side, int row){
 	/* Returns the width of given row in a star of given side length.
+	 * row is given in Stor coordinates (s.i).
 	 */
 	int width = 0;
 	if(row<side-1 || (row>=2*side-1 && row<3*side-2)){
@@ -92,6 +122,18 @@ int linew(int side, int row){
 		width = 4*side-3-row;
 	}
 	return width;
+}
+
+int exists(int side, Hex h){
+	/* Returns 1 if coordinates defined in h exist in current map,
+	 * otherwise 0.
+	 */
+	Stor s = hex_to_stor(side, h);
+	if(s.i >= 0 && s.i < boardh(side) && s.j >= 0 && s.j < linew(side, s.i)){
+		return 1;
+	}else{
+		return 0;
+	}
 }
 
 Content get_ct(Content** b, int side, Hex h){

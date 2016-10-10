@@ -9,12 +9,14 @@ typedef struct stor{
 	int i;
 	int j;
 } Stor;
+Stor new_stor(int, int);
 
 typedef struct hex{
 	//Axial (or Hex) coordinates
 	int r;
 	int q;
 } Hex;
+Hex new_hex(int, int);
 
 typedef struct cube{
 	//Cube coordinates
@@ -22,6 +24,7 @@ typedef struct cube{
 	int y;
 	int z;
 } Cube;
+Cube new_cube(int, int, int);
 
 typedef enum content { EMPTY, RED, GREEN, BLUE, YELLOW, WHITE, PURPLE, FORBIDDEN } Content;
 
@@ -36,6 +39,7 @@ int distance(Hex, Hex);
 Content** init_board(int);
 int boardh(int);
 int linew(int, int);
+int exists(int, Hex);
 Content get_ct(Content**, int, Hex);
 void set_ct(Content**, int, Hex, Content);
 #endif

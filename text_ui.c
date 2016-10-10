@@ -32,15 +32,38 @@ void print_board(Content** b, int side){
 	int i, j, y, x;
 	for(i=0; i<boardh(side); i++){
 		for(j=0; j<linew(side, i); j++){
-			Stor s; s.i = i; s.j = j;
-			Hex h = stor_to_hex(side, s);
+			//For each cell on the board:
+			//Get Hex coordinates
+			Hex h = stor_to_hex(side, new_stor(i, j));
+
+			//Set screen coordinates and print
 			y = y_c + h.r*2;
 			x = x_c + h.q*4 + h.r*2;
 			move(y, x);
 			addch(DISP_CHARS[get_ct(b, side, h)]);
+
+			//Link with existing neighbors
+			//Middle-Right
+			if(exists(side, new_hex(h.r, h.q+1))){
+				move(y, x+1);
+				addstr(" - ");
+			}
+
+			//Bottom-Left
+			if(exists(side, new_hex(h.r+1, h.q-1))){
+				move(y+1, x-1);
+				addch('/');
+			}
+
+			//Bottom-Right
+			if(exists(side, new_hex(h.r+1, h.q))){
+				move(y+1, x+1);
+				addch('\\');
+			}
 		}
 	}
 	mvaddch(y_c, x_c, '#');
+	move(boardh(side)*2, 0);
 	refresh();
 
 	return;

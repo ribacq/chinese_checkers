@@ -7,7 +7,7 @@
  */
 
 //Constants
-const int BOARD_SIDE = 7;
+const int BOARD_SIDE = 5;
 
 int main(int argc, char* argv[])
 {
