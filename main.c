@@ -7,7 +7,7 @@
  */
 
 //Constants
-const int BOARD_SIDE = 2;
+const int BOARD_SIDE = 7;
 
 int main(int argc, char* argv[])
 {
@@ -17,7 +17,6 @@ int main(int argc, char* argv[])
 	//Board test
 	Content** b = init_board(BOARD_SIDE);
 	print_board(b, BOARD_SIDE);
-	refresh();
 	
 	//End
 	ui_terminate();

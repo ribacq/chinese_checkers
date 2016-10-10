@@ -1,6 +1,7 @@
 #ifndef DATA_STRUCT_H_INCLUDED
 #define DATA_STRUCT_H_INCLUDED
 #include <stdlib.h>
+#include <ncurses.h>
 
 //Coordinates data structures
 typedef struct stor{
@@ -33,6 +34,7 @@ int distance(Hex, Hex);
 
 //Board functions
 Content** init_board(int);
+int boardh(int);
 int linew(int, int);
 Content get_ct(Content**, int, Hex);
 void set_ct(Content**, int, Hex, Content);

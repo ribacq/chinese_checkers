@@ -8,15 +8,31 @@
 //Coordinates conversion
 Stor hex_to_stor(int side, Hex h){
 	Stor s;
-	s.i = h.r + (side-1);
-	s.j = h.q + (side-1) + (h.r<0 ? h.r : 0);
+	s.i = h.r + (2*side-2);
+	int sjx0;
+	if(s.i<side-1 || (s.i>=2*side-1 && s.i<3*side-2)){
+		//^: Upper and third star quarters
+		sjx0 = linew(side, s.i)-side;
+	}else{
+		//v: Second and lower star quarters
+		sjx0 = side-1;
+	}
+	s.j = h.q + sjx0;
 	return s;
 }
 
 Hex stor_to_hex(int side, Stor s){
 	Hex h;
-	h.r = s.i - (side-1);
-	h.q = s.j - (side-1) - (h.r<0 ? h.r : 0);
+	h.r = s.i - (2*side-2);
+	int sjx0;
+	if(s.i<side-1 || (s.i>=2*side-1 && s.i<3*side-2)){
+		//^: Upper and third star quarters
+		sjx0 = linew(side, s.i)-side;
+	}else{
+		//v: Second and lower star quarters
+		sjx0 = side-1;
+	}
+	h.q = s.j - sjx0;
 	return h;
 }
 
@@ -44,25 +60,38 @@ int distance(Hex h1, Hex h2){
 //Board
 Content** init_board(int side){
 	/* Contents are stored in a two-dimension table initialized with by
-	 * default EMPTY everywhere, in order for the board to be an hexagon.
+	 * default EMPTY everywhere.
 	 */
 
-	int total_nb = 3*side*side-3*side+1;
-	int diagonal = 2*side-1;
+	int total_nb = 6*side*side-4*side+1;
 
 	Content** b = (Content**) malloc(sizeof(Content)*total_nb);
 	
 	int i;
-	for(i=0; i<diagonal; i++){
+	for(i=0; i<boardh(side); i++){
 		b[i] = (Content*) malloc(sizeof(Content)*linew(side, i));
 	}
 	return b;
 }
 
-int linew(int side, int row){
-	/* Returns the width of given row in a hexagon of given side length.
+int boardh(int side){
+	/* Returns board height.
 	 */
-	return 2*side-1-abs(side-row-1);
+	return 4*side-3;
+}
+
+int linew(int side, int row){
+	/* Returns the width of given row in a star of given side length.
+	 */
+	int width = 0;
+	if(row<side-1 || (row>=2*side-1 && row<3*side-2)){
+		//^: Upper and third star quarters
+		width = row+1;
+	}else{
+		//v: Second and lower star quarters
+		width = 4*side-3-row;
+	}
+	return width;
 }
 
 Content get_ct(Content** b, int side, Hex h){

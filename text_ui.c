@@ -26,11 +26,11 @@ void print_board(Content** b, int side){
 	 */
 	
 	//Central hex coordinates on screen
-	int y_c = side*2-2;
-	int x_c = side*4-4;
+	int y_c = side*4-4;
+	int x_c = side*6-6;
 	
 	int i, j, y, x;
-	for(i=0; i<2*side-1; i++){
+	for(i=0; i<boardh(side); i++){
 		for(j=0; j<linew(side, i); j++){
 			Stor s; s.i = i; s.j = j;
 			Hex h = stor_to_hex(side, s);
@@ -41,6 +41,7 @@ void print_board(Content** b, int side){
 		}
 	}
 	mvaddch(y_c, x_c, '#');
+	refresh();
 
 	return;
 }
