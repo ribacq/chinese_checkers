@@ -7,19 +7,23 @@
  */
 
 //Constants
-const int BOARD_SIDE = 5;
+const int DEF_BOARD_SIDE = 5;
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]){
 	//UI init
 	ui_init();
 
 	//Board test
-	Content** b = init_board(BOARD_SIDE);
-	print_board(b, BOARD_SIDE);
+	int side = DEF_BOARD_SIDE;
+	if(argc == 2){
+		side = strtol(argv[1], NULL, 10);
+	}
+	Content** b = init_board(side);
+	print_board(b, side);
 	
 	//End
+	//free_board(b, side);
 	ui_terminate();
-	return 0;
+	return EXIT_SUCCESS;
 }
 

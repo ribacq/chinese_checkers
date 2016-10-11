@@ -89,17 +89,50 @@ int distance(Hex h1, Hex h2){
 //Board
 Content** init_board(int side){
 	/* Contents are stored in a two-dimension table initialized with by
-	 * default EMPTY everywhere.
+	 * default EMPTY everywhere and colors in the corners.
 	 */
 
+	//General creation
 	int total_nb = 6*side*side-4*side+1;
-
 	Content** b = (Content**) malloc(sizeof(Content)*total_nb);
 	
-	int i;
+	//Line per line
+	int i, j;
 	for(i=0; i<boardh(side); i++){
 		b[i] = (Content*) malloc(sizeof(Content)*linew(side, i));
+		for(j=0; j<linew(side, i); j++){
+			switch(get_zone(side, stor_to_hex(side, new_stor(i, j)))){
+			case TOP:
+				b[i][j] = RED;
+				break;
+
+			case TOP_LEFT:
+				b[i][j] = GREEN;
+				break;
+
+			case BOT_LEFT:
+				b[i][j] = YELLOW;
+				break;
+
+			case BOT:
+				b[i][j] = BLUE;
+				break;
+
+			case BOT_RIGHT:
+				b[i][j] = MAGENTA;
+				break;
+
+			case TOP_RIGHT:
+				b[i][j] = CYAN;
+				break;
+
+			default:
+				b[i][j] = EMPTY;
+				break;
+			}
+		}
 	}
+
 	return b;
 }
 
@@ -124,15 +157,27 @@ int linew(int side, int row){
 	return width;
 }
 
-int exists(int side, Hex h){
-	/* Returns 1 if coordinates defined in h exist in current map,
-	 * otherwise 0.
+Zone get_zone(int side, Hex h){
+	/* Returns the zone wherein given hex is located.
 	 */
 	Stor s = hex_to_stor(side, h);
-	if(s.i >= 0 && s.i < boardh(side) && s.j >= 0 && s.j < linew(side, s.i)){
-		return 1;
+	Cube c = hex_to_cube(h);
+	if(s.i < 0 || s.i >= boardh(side) || s.j < 0 || s.j >= linew(side, s.i)){
+		return NOWHERE;
+	}else if(c.z < 1-side){
+		return TOP;
+	}else if(c.z > side-1){
+		return BOT;
+	}else if(c.x > side-1){
+		return TOP_RIGHT;
+	}else if(c.x < 1-side){
+		return BOT_LEFT;
+	}else if(c.y > side-1){
+		return TOP_LEFT;
+	}else if(c.y < 1-side){
+		return BOT_RIGHT;
 	}else{
-		return 0;
+		return CENTER;
 	}
 }
 

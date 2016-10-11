@@ -1,7 +1,6 @@
 #ifndef DATA_STRUCT_H_INCLUDED
 #define DATA_STRUCT_H_INCLUDED
 #include <stdlib.h>
-#include <ncurses.h>
 
 //Coordinates data structures
 typedef struct stor{
@@ -26,7 +25,9 @@ typedef struct cube{
 } Cube;
 Cube new_cube(int, int, int);
 
-typedef enum content { EMPTY, RED, GREEN, BLUE, YELLOW, WHITE, PURPLE, FORBIDDEN } Content;
+//Enums
+typedef enum content { EMPTY, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN } Content;
+typedef enum zone { CENTER, TOP, TOP_LEFT, TOP_RIGHT, BOT_LEFT, BOT_RIGHT, BOT, NOWHERE } Zone;
 
 //Coordinates conversion
 Stor hex_to_stor(int, Hex);
@@ -39,7 +40,7 @@ int distance(Hex, Hex);
 Content** init_board(int);
 int boardh(int);
 int linew(int, int);
-int exists(int, Hex);
+Zone get_zone(int, Hex);
 Content get_ct(Content**, int, Hex);
 void set_ct(Content**, int, Hex, Content);
 #endif
