@@ -1,5 +1,13 @@
 #ifndef DATA_STRUCT_H_INCLUDED
 #define DATA_STRUCT_H_INCLUDED
+
+/* Data structures
+ * How are coordinates, board, cells stored, how they relate,
+ * is defined herein.
+ * Hexes are located with cube coordinates.
+ * Ressource used: http://www.redblobgames.com/grids/hexagons
+ */
+
 #include <stdlib.h>
 
 //Coordinates data structures
@@ -26,7 +34,7 @@ typedef struct cube{
 Cube new_cube(int, int, int);
 
 //Enums
-typedef enum content { EMPTY, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN } Content;
+typedef enum content { EMPTY, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, INVALID } Content;
 typedef enum zone { CENTER, TOP, TOP_LEFT, TOP_RIGHT, BOT_LEFT, BOT_RIGHT, BOT, NOWHERE } Zone;
 
 //Coordinates conversion
@@ -41,7 +49,10 @@ Content** init_board(int);
 int boardh(int);
 int linew(int, int);
 Zone get_zone(int, Hex);
+
+//Cell functions
 Content get_ct(Content**, int, Hex);
 void set_ct(Content**, int, Hex, Content);
+Hex* neighbors(int, Hex, int*);
 #endif
 

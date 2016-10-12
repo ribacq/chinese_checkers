@@ -10,6 +10,8 @@ void ui_init(){
 	noecho();		//Disables input echo
 	curs_set(FALSE);	//Hides cursor
 	keypad(stdscr, TRUE);	//Enable special keys
+	
+	//Colors
 	if(has_colors() == FALSE){
 		endwin();
 		printf("Your terminal does not support color.\n");
@@ -27,9 +29,41 @@ void ui_init(){
 }
 
 void ui_terminate(){
+	/* UI termination
+	 */
 	refresh();
 	getch();
 	endwin();
+	return;
+}
+
+//Screen coordinates
+Scryx new_scryx(int y, int x){
+	/* Returns Scryx with given values
+	 */
+	Scryx sc;
+	sc.y = y;
+	sc.x = x;
+	return sc;
+}
+
+Scryx center_coordinates(int side){
+	/* Returns Scryx containing the coordinates of the board’s center
+	 */
+	return new_scryx(4*(side-1), 6*(side-1));
+}
+
+Scryx hex_to_scryx(int side, Hex h){
+	/* Hex to Scryx conversion
+	 */
+	Scryx ctr = center_coordinates(side);
+	return new_scryx(ctr.y + h.r*2, ctr.x + h.q*4 + h.r*2);
+}
+
+void sc_move(Scryx sc){
+	/* Moves cursor to sc
+	 */
+	move(sc.y, sc.x);
 	return;
 }
 
@@ -37,12 +71,9 @@ void ui_terminate(){
 void print_board(Content** b, int side){
 	/* Prints board porperly
 	 */
-	
-	//Central hex coordinates on screen
-	int y_c = side*4-4;
-	int x_c = side*6-6;
-	
-	int i, j, y, x;
+		
+	int i, j;
+	Scryx cell;
 	for(i=0; i<boardh(side); i++){
 		for(j=0; j<linew(side, i); j++){
 			//For each cell on the board:
@@ -50,38 +81,57 @@ void print_board(Content** b, int side){
 			Hex h = stor_to_hex(side, new_stor(i, j));
 
 			//Set screen coordinates
-			y = y_c + h.r*2;
-			x = x_c + h.q*4 + h.r*2;
+			cell = hex_to_scryx(side, h);
 
 			//Print cell
-			move(y, x);
+			sc_move(cell);
 			Content ct = get_ct(b, side, h);
-			attron(COLOR_PAIR(ct) | A_BOLD);
-			addch('O');
-			attroff(COLOR_PAIR(ct) | A_BOLD);
-
-			//Link with existing neighbors
-			//Middle-Right
-			if(get_zone(side, new_hex(h.r, h.q+1)) != NOWHERE){
-				move(y, x+1);
-				addstr(" - ");
+			attron(COLOR_PAIR(ct));
+			if(get_ct(b, side, h) != EMPTY){
+				attron(A_BOLD);
+				addch('O');
+				attroff(A_BOLD);
+			}else{
+				addch('.');
 			}
-
-			//Bottom-Left
-			if(get_zone(side, new_hex(h.r+1, h.q-1)) != NOWHERE){
-				move(y+1, x-1);
-				addch('/');
-			}
-
-			//Bottom-Right
-			if(get_zone(side, new_hex(h.r+1, h.q)) != NOWHERE){
-				move(y+1, x+1);
-				addch('\\');
-			}
+			attroff(COLOR_PAIR(ct));
 		}
 	}
 	refresh();
 
 	return;
+}
+
+//Cells
+int link(int side, Hex h1, Hex h2){
+	/* Prints a link between adjacent hexes on the board.
+	 * Returns 1 if success, 0 if failure.
+	 */
+
+	//Wrong input: not on the board
+	if(get_zone(side, h1) == NOWHERE || get_zone(side, h2) == NOWHERE) return 0;
+	//Wrong input: not neighbors
+	if(distance(h1, h2) != 1) return 0;
+	
+	//Input is correct.
+	Cube c1 = hex_to_cube(h1);
+	Cube c2 = hex_to_cube(h2);
+	
+	char link_char;
+	if(c1.x == c2.x){
+		link_char = '\\';
+	}else if(c1.y == c2.y){
+		link_char = '/';
+	}else{ //c1.z == c2.z
+		link_char = '-';
+	}
+
+	Scryx sc1 = hex_to_scryx(side, h1);
+	Scryx sc2 = hex_to_scryx(side, h2);
+
+	move((sc1.y+sc2.y)/2, (sc1.x+sc2.x)/2);
+	addch(link_char);
+	refresh();
+	return 1;
 }
 

@@ -1,10 +1,5 @@
 #include "data_struct.h"
 
-/*
- * Hexes are located with cube coordinates.
- * Ressource used: http://www.redblobgames.com/grids/hexagons
- */
-
 //Coordinates data structures
 Stor new_stor(int i, int j){
 	/* Create new Stor using given coordinates
@@ -181,9 +176,11 @@ Zone get_zone(int side, Hex h){
 	}
 }
 
+//Cell functions
 Content get_ct(Content** b, int side, Hex h){
 	/* Returns the content of given hex
 	 */
+	if(get_zone(side, h) == NOWHERE) return INVALID;
 	Stor s = hex_to_stor(side, h);
 	return b[s.i][s.j];
 }
@@ -194,5 +191,42 @@ void set_ct(Content** b, int side, Hex h, Content c){
 	Stor s = hex_to_stor(side, h);
 	b[s.i][s.j] = c;
 	return;
+}
+
+Hex* neighbors(int side, Hex h, int* len){
+	/* Returns an array of h’s neighboring cells
+	 * Sets len to the neighbors’ number
+	 */
+	int i = 0;
+	Hex tmp_h;
+	Hex* neighs = (Hex*) malloc(6*sizeof(Hex));
+
+	//Level-right
+	tmp_h = new_hex(h.r, h.q+1);
+	if(get_zone(side, tmp_h) != NOWHERE) neighs[i++] = tmp_h;
+
+	//Up-right
+	tmp_h = new_hex(h.r-1, h.q+1);
+	if(get_zone(side, tmp_h) != NOWHERE) neighs[i++] = tmp_h;
+
+	//Up-left
+	tmp_h = new_hex(h.r-1, h.q);
+	if(get_zone(side, tmp_h) != NOWHERE) neighs[i++] = tmp_h;
+
+	//Level-left
+	tmp_h = new_hex(h.r, h.q-1);
+	if(get_zone(side, tmp_h) != NOWHERE) neighs[i++] = tmp_h;
+
+	//Down-left
+	tmp_h = new_hex(h.r+1, h.q-1);
+	if(get_zone(side, tmp_h) != NOWHERE) neighs[i++] = tmp_h;
+
+	//Down-right
+	tmp_h = new_hex(h.r+1, h.q);
+	if(get_zone(side, tmp_h) != NOWHERE) neighs[i++] = tmp_h;
+
+	*len = i;
+	neighs = realloc(neighs, sizeof(Hex)*i);
+	return neighs;
 }
 

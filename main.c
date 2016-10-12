@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "data_struct.h"
 #include "text_ui.h"
+#include "game.h"
 
 /* Chinese Checkers main program
  */
@@ -19,10 +20,11 @@ int main(int argc, char* argv[]){
 		side = strtol(argv[1], NULL, 10);
 	}
 	Content** b = init_board(side);
+	set_ct(b, side, new_hex(0, 0), CYAN);
 	print_board(b, side);
+	link_accessible_from(b, side, new_hex(0, 0));
 	
 	//End
-	//free_board(b, side);
 	ui_terminate();
 	return EXIT_SUCCESS;
 }
