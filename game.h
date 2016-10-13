@@ -4,10 +4,11 @@
 /* Functions and data related to the game process
  */
 
+#include <stdlib.h>
 #include "data_struct.h"
 #include "text_ui.h"
 
-int link_accessible_from(Content**, int, Hex);
+void link_accessible_from(Content**, const int, int*, Hex*);
 
 #endif
 

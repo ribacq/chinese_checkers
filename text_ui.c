@@ -47,17 +47,17 @@ Scryx new_scryx(int y, int x){
 	return sc;
 }
 
-Scryx center_coordinates(int side){
-	/* Returns Scryx containing the coordinates of the board’s center
-	 */
-	return new_scryx(4*(side-1), 6*(side-1));
-}
-
-Scryx hex_to_scryx(int side, Hex h){
+Scryx hex_to_scryx(const int side, Hex h){
 	/* Hex to Scryx conversion
 	 */
 	Scryx ctr = center_coordinates(side);
 	return new_scryx(ctr.y + h.r*2, ctr.x + h.q*4 + h.r*2);
+}
+
+Scryx center_coordinates(const int side){
+	/* Returns Scryx containing the coordinates of the board’s center
+	 */
+	return new_scryx(4*(side-1), 6*(side-1));
 }
 
 void sc_move(Scryx sc){
@@ -68,7 +68,7 @@ void sc_move(Scryx sc){
 }
 
 //Board
-void print_board(Content** b, int side){
+void print_board(Content** b, const int side){
 	/* Prints board porperly
 	 */
 		
@@ -103,7 +103,7 @@ void print_board(Content** b, int side){
 }
 
 //Cells
-int link(int side, Hex h1, Hex h2){
+int link(const int side, Hex h1, Hex h2){
 	/* Prints a link between adjacent hexes on the board.
 	 * Returns 1 if success, 0 if failure.
 	 */

@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <stdio.h>
 #include "data_struct.h"
 #include "text_ui.h"
 #include "game.h"
@@ -20,9 +19,19 @@ int main(int argc, char* argv[]){
 		side = strtol(argv[1], NULL, 10);
 	}
 	Content** b = init_board(side);
-	set_ct(b, side, new_hex(0, 0), CYAN);
+	Hex h = new_hex(3, -1);
+	set_ct(b, side, h, CYAN);
+	set_ct(b, side, new_hex(0, -1), YELLOW);
+	set_ct(b, side, new_hex(0, 0), RED);
+	set_ct(b, side, new_hex(2, -1), BLUE);
+	set_ct(b, side, new_hex(-1, 0), MAGENTA);
+	set_ct(b, side, new_hex(-2, 1), GREEN);
 	print_board(b, side);
-	link_accessible_from(b, side, new_hex(0, 0));
+	int nb = 1;
+	int total_nb = 3*side*side-2*side+1;
+	Hex cells[total_nb];
+	cells[0] = h;
+	link_accessible_from(b, side, &nb, cells);
 	
 	//End
 	ui_terminate();

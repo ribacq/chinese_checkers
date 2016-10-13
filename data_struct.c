@@ -30,33 +30,33 @@ Cube new_cube(int x, int y, int z){
 }
 
 //Coordinates conversion
-Stor hex_to_stor(int side, Hex h){
+Stor hex_to_stor(const int side, Hex h){
 	Stor s;
 	s.i = h.r + (2*side-2);
-	int sjx0;
+	int sjq0;
 	if(s.i<side-1 || (s.i>=2*side-1 && s.i<3*side-2)){
 		//^: Upper and third star quarters
-		sjx0 = linew(side, s.i)-side;
+		sjq0 = linew(side, s.i)-side;
 	}else{
 		//v: Second and lower star quarters
-		sjx0 = side-1;
+		sjq0 = side-1;
 	}
-	s.j = h.q + sjx0;
+	s.j = h.q + sjq0;
 	return s;
 }
 
-Hex stor_to_hex(int side, Stor s){
+Hex stor_to_hex(const int side, Stor s){
 	Hex h;
 	h.r = s.i - (2*side-2);
-	int sjx0;
+	int sjq0;
 	if(s.i<side-1 || (s.i>=2*side-1 && s.i<3*side-2)){
 		//^: Upper and third star quarters
-		sjx0 = linew(side, s.i)-side;
+		sjq0 = linew(side, s.i)-side;
 	}else{
 		//v: Second and lower star quarters
-		sjx0 = side-1;
+		sjq0 = side-1;
 	}
-	h.q = s.j - sjx0;
+	h.q = s.j - sjq0;
 	return h;
 }
 
@@ -82,7 +82,7 @@ int distance(Hex h1, Hex h2){
 }
 
 //Board
-Content** init_board(int side){
+Content** init_board(const int side){
 	/* Contents are stored in a two-dimension table initialized with by
 	 * default EMPTY everywhere and colors in the corners.
 	 */
@@ -131,13 +131,13 @@ Content** init_board(int side){
 	return b;
 }
 
-int boardh(int side){
+int boardh(const int side){
 	/* Returns board height.
 	 */
 	return 4*side-3;
 }
 
-int linew(int side, int row){
+int linew(const int side, int row){
 	/* Returns the width of given row in a star of given side length.
 	 * row is given in Stor coordinates (s.i).
 	 */
@@ -152,7 +152,7 @@ int linew(int side, int row){
 	return width;
 }
 
-Zone get_zone(int side, Hex h){
+Zone get_zone(const int side, Hex h){
 	/* Returns the zone wherein given hex is located.
 	 */
 	Stor s = hex_to_stor(side, h);
@@ -177,7 +177,7 @@ Zone get_zone(int side, Hex h){
 }
 
 //Cell functions
-Content get_ct(Content** b, int side, Hex h){
+Content get_ct(Content** b, const int side, Hex h){
 	/* Returns the content of given hex
 	 */
 	if(get_zone(side, h) == NOWHERE) return INVALID;
@@ -185,7 +185,7 @@ Content get_ct(Content** b, int side, Hex h){
 	return b[s.i][s.j];
 }
 
-void set_ct(Content** b, int side, Hex h, Content c){
+void set_ct(Content** b, const int side, Hex h, Content c){
 	/* Sets the content of given Hex
 	 */
 	Stor s = hex_to_stor(side, h);
@@ -193,7 +193,7 @@ void set_ct(Content** b, int side, Hex h, Content c){
 	return;
 }
 
-Hex* neighbors(int side, Hex h, int* len){
+Hex* neighbors(const int side, Hex h, int* len){
 	/* Returns an array of h’s neighboring cells
 	 * Sets len to the neighbors’ number
 	 */

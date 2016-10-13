@@ -18,15 +18,15 @@ typedef struct scryx {
 	int x;
 } Scryx;
 Scryx new_scryx(int, int);
-Scryx center_coordinates(int);
-Scryx hex_to_scryx(int, Hex);
+Scryx hex_to_scryx(const int, Hex);
+Scryx center_coordinates(const int);
 void sc_move(Scryx);
 
 //Board generals
-void print_board(Content**, int);
+void print_board(Content**, const int);
 
 //Cells
-int link(int, Hex, Hex);
+int link(const int, Hex, Hex);
 
 #endif
 

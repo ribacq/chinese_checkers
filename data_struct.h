@@ -38,21 +38,21 @@ typedef enum content { EMPTY, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, INVALID }
 typedef enum zone { CENTER, TOP, TOP_LEFT, TOP_RIGHT, BOT_LEFT, BOT_RIGHT, BOT, NOWHERE } Zone;
 
 //Coordinates conversion
-Stor hex_to_stor(int, Hex);
-Hex stor_to_hex(int, Stor);
+Stor hex_to_stor(const int, Hex);
+Hex stor_to_hex(const int, Stor);
 Cube hex_to_cube(Hex);
 Hex cube_to_hex(Cube);
 int distance(Hex, Hex);
 
 //Board functions
-Content** init_board(int);
-int boardh(int);
-int linew(int, int);
-Zone get_zone(int, Hex);
+Content** init_board(const int);
+int boardh(const int);
+int linew(const int, int);
+Zone get_zone(const int, Hex);
 
 //Cell functions
-Content get_ct(Content**, int, Hex);
-void set_ct(Content**, int, Hex, Content);
-Hex* neighbors(int, Hex, int*);
+Content get_ct(Content**, const int, Hex);
+void set_ct(Content**, const int, Hex, Content);
+Hex* neighbors(const int, Hex, int*);
 #endif
 
