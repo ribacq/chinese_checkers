@@ -159,14 +159,21 @@ Hex move_cursor(Content** b, const int side, Hex curs_h){
 
 		//Get user input and move
 		ch = getch();
-		if(ch == CTRLS_LEFT){
-			next = new_hex(curs_h.r, curs_h.q-1);
-		}else if(ch == CTRLS_DOWN){
-			next = new_hex(curs_h.r+1, curs_h.q);
-		}else if(ch == CTRLS_UP){
-			next = new_hex(curs_h.r-1, curs_h.q);
-		}else if(ch == CTRLS_RIGHT){
-			next = new_hex(curs_h.r, curs_h.q+1);
+		next = curs_h;
+		if(ch == CTRLS_RIGHT){
+			next.q++;
+		}else if(ch == CTRLS_TOP_RIGHT){
+			next.r--;
+			next.q++;
+		}else if(ch == CTRLS_TOP_LEFT){
+			next.r--;
+		}else if(ch == CTRLS_LEFT){
+			next.q--;
+		}else if(ch == CTRLS_BOT_LEFT){
+			next.r++;
+			next.q--;
+		}else if(ch == CTRLS_BOT_RIGHT){
+			next.r++;
 		}else if(ch == CTRLS_OK){
 			cont = 0;
 		}

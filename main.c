@@ -19,11 +19,10 @@ int main(int argc, char* argv[]){
 		side = strtol(argv[1], NULL, 10);
 	}
 	Content** b = init_board(side);
-	Hex h = new_hex(3, -1);
-	set_ct(b, side, h, CYAN);
+	set_ct(b, side, new_hex(2, -1), CYAN);
 	set_ct(b, side, new_hex(0, -1), YELLOW);
 	set_ct(b, side, new_hex(0, 0), RED);
-	set_ct(b, side, new_hex(2, -1), BLUE);
+	set_ct(b, side, new_hex(1, -1), BLUE);
 	set_ct(b, side, new_hex(-1, 0), MAGENTA);
 	set_ct(b, side, new_hex(-2, 1), GREEN);
 	print_board(b, side);
@@ -32,7 +31,7 @@ int main(int argc, char* argv[]){
 	Hex curs_h = move_cursor(b, side, new_hex(0, 0));
 	Hex tmp_h = curs_h;
 	Hex cells[side*side];
-	while(getch() != CTRLS_EXIT){
+	while(curs_h.r != -2*(side-1) || curs_h.q != side-1){
 		nb = 1;
 		cells[0] = curs_h;
 		link_accessible_from(b, side, &nb, cells, 1);

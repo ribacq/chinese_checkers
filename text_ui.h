@@ -9,13 +9,15 @@
 #include "data_struct.h"
 
 //Data
-static const int CTRLS_LEFT	= 't';
-static const int CTRLS_DOWN	= 's';
-static const int CTRLS_UP	= 'r';
-static const int CTRLS_RIGHT	= 'n';
-static const int CTRLS_OK	= ' ';
-static const int CTRLS_BACK	= 'v';
-static const int CTRLS_EXIT	= 'q';
+static const int CTRLS_RIGHT     = 'n';
+static const int CTRLS_TOP_RIGHT = 'l';
+static const int CTRLS_TOP_LEFT  = 'r';
+static const int CTRLS_LEFT      = 't';
+static const int CTRLS_BOT_LEFT  = 'd';
+static const int CTRLS_BOT_RIGHT = 's';
+static const int CTRLS_OK        = ' ';
+static const int CTRLS_BACK      = 'v';
+static const int CTRLS_EXIT      = 'q';
 
 //General UI functions
 void ui_init();
