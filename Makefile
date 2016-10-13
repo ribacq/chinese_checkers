@@ -4,7 +4,7 @@ OBJ = main.o data_struct.o text_ui.o game.o
 CC = gcc
 LIBS = -lncurses
 CFLAGS = -Wall
-OUT = chinese-checkers.exe
+OUT = chinese-checkers
 
 all: ${OBJ}
 	${CC} ${CFLAGS} ${LIBS} -o ${OUT} ${OBJ}
