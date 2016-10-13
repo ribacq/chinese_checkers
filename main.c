@@ -27,11 +27,21 @@ int main(int argc, char* argv[]){
 	set_ct(b, side, new_hex(-1, 0), MAGENTA);
 	set_ct(b, side, new_hex(-2, 1), GREEN);
 	print_board(b, side);
-	int nb = 1;
-	int total_nb = 3*side*side-2*side+1;
-	Hex cells[total_nb];
-	cells[0] = h;
-	link_accessible_from(b, side, &nb, cells);
+
+	int nb;
+	Hex curs_h = move_cursor(b, side, new_hex(0, 0));
+	Hex tmp_h = curs_h;
+	Hex cells[side*side];
+	while(getch() != CTRLS_EXIT){
+		nb = 1;
+		cells[0] = curs_h;
+		link_accessible_from(b, side, &nb, cells, 1);
+		tmp_h = move_cursor(b, side, curs_h);
+		nb = 1;
+		cells[0] = curs_h;
+		link_accessible_from(b, side, &nb, cells, 0);
+		curs_h = tmp_h;
+	}
 	
 	//End
 	ui_terminate();

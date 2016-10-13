@@ -8,7 +8,7 @@
 #include "data_struct.h"
 #include "text_ui.h"
 
-void link_accessible_from(Content**, const int, int*, Hex*);
+void link_accessible_from(Content**, const int, int*, Hex*, int);
 
 #endif
 

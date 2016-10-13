@@ -32,7 +32,6 @@ void ui_terminate(){
 	/* UI termination
 	 */
 	refresh();
-	getch();
 	endwin();
 	return;
 }
@@ -103,22 +102,25 @@ void print_board(Content** b, const int side){
 }
 
 //Cells
-int link(const int side, Hex h1, Hex h2){
-	/* Prints a link between adjacent hexes on the board.
-	 * Returns 1 if success, 0 if failure.
+void link(const int side, Hex h1, Hex h2, int mode){
+	/* Prints or erases a link between adjacent hexes on the board.
+	 * mode = 1: print
+	 * mode = 0: erase
 	 */
 
 	//Wrong input: not on the board
-	if(get_zone(side, h1) == NOWHERE || get_zone(side, h2) == NOWHERE) return 0;
+	if(get_zone(side, h1) == NOWHERE || get_zone(side, h2) == NOWHERE) return;
 	//Wrong input: not neighbors
-	if(distance(h1, h2) != 1) return 0;
+	if(distance(h1, h2) != 1) return;
 	
 	//Input is correct.
 	Cube c1 = hex_to_cube(h1);
 	Cube c2 = hex_to_cube(h2);
 	
 	char link_char;
-	if(c1.x == c2.x){
+	if(!mode){
+		link_char = ' ';
+	}else if(c1.x == c2.x){
 		link_char = '\\';
 	}else if(c1.y == c2.y){
 		link_char = '/';
@@ -132,6 +134,59 @@ int link(const int side, Hex h1, Hex h2){
 	move((sc1.y+sc2.y)/2, (sc1.x+sc2.x)/2);
 	addch(link_char);
 	refresh();
-	return 1;
+	return;
+}
+
+//User interaction
+Hex move_cursor(Content** b, const int side, Hex curs_h){
+	/* Interactively moves cursor on the board
+	 */
+	int cont = 1;
+	Hex next;
+	Content ct;
+	int ch;
+	while(cont){
+		//Print cursor
+		sc_move(hex_to_scryx(side, curs_h));
+		ct = get_ct(b, side, curs_h);
+		attrset(COLOR_PAIR(ct) | A_REVERSE);
+		if(ct != EMPTY){
+			addch('O');
+		}else{
+			addch('.');
+		}
+		refresh();
+
+		//Get user input and move
+		ch = getch();
+		if(ch == CTRLS_LEFT){
+			next = new_hex(curs_h.r, curs_h.q-1);
+		}else if(ch == CTRLS_DOWN){
+			next = new_hex(curs_h.r+1, curs_h.q);
+		}else if(ch == CTRLS_UP){
+			next = new_hex(curs_h.r-1, curs_h.q);
+		}else if(ch == CTRLS_RIGHT){
+			next = new_hex(curs_h.r, curs_h.q+1);
+		}else if(ch == CTRLS_OK){
+			cont = 0;
+		}
+		
+		//If next is correct, erase and move
+		if(get_zone(side, next) != NOWHERE){
+			sc_move(hex_to_scryx(side, curs_h));
+			attroff(A_REVERSE);
+			if(ct != EMPTY){
+				attron(A_BOLD);
+				addch('O');
+			}else{
+				attron(A_NORMAL);
+				addch('.');
+			}
+			refresh();
+			curs_h = next;
+		}
+	}
+	standend();
+	return curs_h;
 }
 

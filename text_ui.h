@@ -8,6 +8,15 @@
 #include <ncurses.h>
 #include "data_struct.h"
 
+//Data
+static const int CTRLS_LEFT	= 't';
+static const int CTRLS_DOWN	= 's';
+static const int CTRLS_UP	= 'r';
+static const int CTRLS_RIGHT	= 'n';
+static const int CTRLS_OK	= ' ';
+static const int CTRLS_BACK	= 'v';
+static const int CTRLS_EXIT	= 'q';
+
 //General UI functions
 void ui_init();
 void ui_terminate();
@@ -26,7 +35,10 @@ void sc_move(Scryx);
 void print_board(Content**, const int);
 
 //Cells
-int link(const int, Hex, Hex);
+void link(const int, Hex, Hex, int);
+
+//User interaction
+Hex move_cursor(Content**, const int, Hex);
 
 #endif
 
