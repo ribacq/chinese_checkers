@@ -30,6 +30,7 @@ Cube new_cube(int x, int y, int z){
 }
 
 //Coordinates conversion
+///\brief Hex to Stor conversion. Needs side.
 Stor hex_to_stor(const int side, Hex h){
 	Stor s;
 	s.i = h.r + (2*side-2);
@@ -45,6 +46,7 @@ Stor hex_to_stor(const int side, Hex h){
 	return s;
 }
 
+///\brief Stor to Hex conversion. Needs side.
 Hex stor_to_hex(const int side, Stor s){
 	Hex h;
 	h.r = s.i - (2*side-2);
@@ -60,6 +62,7 @@ Hex stor_to_hex(const int side, Stor s){
 	return h;
 }
 
+///\brief Hex to Cube conversion
 Cube hex_to_cube(Hex h){
 	Cube c;
 	c.z = h.r;
@@ -68,6 +71,7 @@ Cube hex_to_cube(Hex h){
 	return c;
 }
 
+///\brief Cube to Hex conversion
 Hex cube_to_hex(Cube c){
 	Hex h;
 	h.r = c.z;
@@ -75,18 +79,14 @@ Hex cube_to_hex(Cube c){
 	return h;
 }
 
-int distance(Hex h1, Hex h2){
-	Cube c1 = hex_to_cube(h1);
-	Cube c2 = hex_to_cube(h2);
-	return (abs(c1.x-c2.x)+abs(c1.y-c2.y)+abs(c1.z-c2.z))/2;
-}
-
 //Board
+/**
+ * \brief Returns the default staring board.
+ * 
+ * Contents are stored in a two-dimensional table initialized with by defalut
+ * EMPTY in the CENTER and colors in the corners.
+ */
 Content** init_board(const int side){
-	/* Contents are stored in a two-dimension table initialized with by
-	 * default EMPTY everywhere and colors in the corners.
-	 */
-
 	//General creation
 	int total_nb = 6*side*side-4*side+1;
 	Content** b = (Content**) malloc(sizeof(Content)*total_nb);
@@ -131,16 +131,13 @@ Content** init_board(const int side){
 	return b;
 }
 
+///\brief Returns board height.
 int boardh(const int side){
-	/* Returns board height.
-	 */
 	return 4*side-3;
 }
 
+///\brief Returns width of given row (Stor::i) in a star of given length.
 int linew(const int side, int row){
-	/* Returns the width of given row in a star of given side length.
-	 * row is given in Stor coordinates (s.i).
-	 */
 	int width = 0;
 	if(row<side-1 || (row>=2*side-1 && row<3*side-2)){
 		//^: Upper and third star quarters
@@ -152,9 +149,8 @@ int linew(const int side, int row){
 	return width;
 }
 
+///\brief Returns the zone wherein given hex is located.
 Zone get_zone(const int side, Hex h){
-	/* Returns the zone wherein given hex is located.
-	 */
 	Stor s = hex_to_stor(side, h);
 	Cube c = hex_to_cube(h);
 	if(s.i < 0 || s.i >= boardh(side) || s.j < 0 || s.j >= linew(side, s.i)){
@@ -177,6 +173,7 @@ Zone get_zone(const int side, Hex h){
 }
 
 //Cell functions
+///\brief Returns the content of given hex on board
 Content get_ct(Content** b, const int side, Hex h){
 	/* Returns the content of given hex
 	 */
@@ -185,18 +182,22 @@ Content get_ct(Content** b, const int side, Hex h){
 	return b[s.i][s.j];
 }
 
+///\brief Sets the content of given hex
 void set_ct(Content** b, const int side, Hex h, Content c){
-	/* Sets the content of given Hex
-	 */
 	Stor s = hex_to_stor(side, h);
 	b[s.i][s.j] = c;
 	return;
 }
 
+///\brief Returns distance between two hexes
+int distance(Hex h1, Hex h2){
+	Cube c1 = hex_to_cube(h1);
+	Cube c2 = hex_to_cube(h2);
+	return (abs(c1.x-c2.x)+abs(c1.y-c2.y)+abs(c1.z-c2.z))/2;
+}
+
+///\brief Returns an array of given Hex’s neighboring cells and sets len accordingly.
 Hex* neighbors(const int side, Hex h, int* len){
-	/* Returns an array of h’s neighboring cells
-	 * Sets len to the neighbors’ number
-	 */
 	int i = 0;
 	Hex tmp_h;
 	Hex* neighs = (Hex*) malloc(6*sizeof(Hex));

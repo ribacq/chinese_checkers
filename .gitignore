@@ -37,3 +37,7 @@
 
 # Editors temporary files
 *.swp
+
+# Doxygen
+html/*
+

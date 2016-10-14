@@ -24,7 +24,7 @@ void ui_init();
 void ui_terminate();
 
 //Screen coordinates
-typedef struct scryx {
+typedef struct{
 	int y;
 	int x;
 } Scryx;

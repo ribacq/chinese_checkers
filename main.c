@@ -3,12 +3,33 @@
 #include "text_ui.h"
 #include "game.h"
 
-/* Chinese Checkers main program
+/**
+ * \mainpage Chinese Checkers in C
+ *
+ * This software uses `ncurses.h`.
  */
 
-//Constants
+/**
+ * \file main.c
+ * \brief Main program for Chinese Checkers
+ *
+ * This file is where the main() function lives. It’s supposed to be fairly
+ * independant from how other files in the project work, especially UI
+ * related.
+ */
+
+/** \brief Default board side length. */
 const int DEF_BOARD_SIDE = 5;
 
+/**
+ * \brief Chinese Checkers main function
+ *
+ * \param argc Number of command-line arguments
+ * \param argv String values of command-line arguments.
+ *
+ * If a number is passed to the program as argument command-line argument, its
+ * value will be used as side.
+ */
 int main(int argc, char* argv[]){
 	//UI init
 	ui_init();
@@ -22,7 +43,7 @@ int main(int argc, char* argv[]){
 	set_ct(b, side, new_hex(2, -1), CYAN);
 	set_ct(b, side, new_hex(0, -1), YELLOW);
 	set_ct(b, side, new_hex(0, 0), RED);
-	set_ct(b, side, new_hex(1, -1), BLUE);
+	set_ct(b, side, new_hex(2, -2), BLUE);
 	set_ct(b, side, new_hex(-1, 0), MAGENTA);
 	set_ct(b, side, new_hex(-2, 1), GREEN);
 	print_board(b, side);
