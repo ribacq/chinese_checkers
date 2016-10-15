@@ -2,8 +2,6 @@
 
 //Coordinates data structures
 Stor new_stor(int i, int j){
-	/* Create new Stor using given coordinates
-	 */
 	Stor s;
 	s.i = i;
 	s.j = j;
@@ -11,8 +9,6 @@ Stor new_stor(int i, int j){
 }
 
 Hex new_hex(int r, int q){
-	/* Create new Hex using given coordinates
-	 */
 	Hex h;
 	h.r = r;
 	h.q = q;
@@ -20,8 +16,6 @@ Hex new_hex(int r, int q){
 }
 
 Cube new_cube(int x, int y, int z){
-	/* Create new Cube using given coordinates
-	 */
 	Cube c;
 	c.x = x;
 	c.y = y;

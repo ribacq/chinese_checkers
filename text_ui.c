@@ -1,10 +1,8 @@
 #include "text_ui.h"
 
 //General UI functions
-void ui_init(){
-	/* UI initialization
-	 */
-
+///\brief UI initialization
+UI* ui_init(){
 	initscr();		//Starts ncurses mode
 	raw();			//Disables line buffering
 	noecho();		//Disables input echo
@@ -25,52 +23,51 @@ void ui_init(){
 	init_pair(BLUE,		COLOR_BLUE,		COLOR_BLACK);
 	init_pair(MAGENTA,	COLOR_MAGENTA,		COLOR_BLACK);
 	init_pair(CYAN,		COLOR_CYAN,		COLOR_BLACK);
-	return;
+
+	//Windows
+	UI* ui = (UI*) malloc(sizeof(UI));
+	ui->main_win = newwin(LINES, COLS, 0, 0);
+	box(ui->main_win, 0, 0);
+	wrefresh(ui->main_win);
+	return ui;
 }
 
-void ui_terminate(){
-	/* UI termination
-	 */
-	refresh();
+///\brief UI termination
+void ui_terminate(UI* ui){
+	wborder(ui->main_win, ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ');
+	wrefresh(ui->main_win);
+	delwin(ui->main_win);
 	endwin();
 	return;
 }
 
 //Screen coordinates
 Scryx new_scryx(int y, int x){
-	/* Returns Scryx with given values
-	 */
 	Scryx sc;
 	sc.y = y;
 	sc.x = x;
 	return sc;
 }
 
-Scryx hex_to_scryx(const int side, Hex h){
-	/* Hex to Scryx conversion
-	 */
-	Scryx ctr = center_coordinates(side);
+Scryx hex_to_scryx(UI* ui, Hex h){
+	Scryx ctr = center_coordinates(ui);
 	return new_scryx(ctr.y + h.r*2, ctr.x + h.q*4 + h.r*2);
 }
 
-Scryx center_coordinates(const int side){
-	/* Returns Scryx containing the coordinates of the board’s center
-	 */
-	return new_scryx(4*(side-1), 6*(side-1));
+Scryx center_coordinates(UI* ui){
+	int h, w;
+	getmaxyx(ui->main_win, h, w);
+	return new_scryx(h/2, w/2);
 }
 
-void sc_move(Scryx sc){
-	/* Moves cursor to sc
-	 */
-	move(sc.y, sc.x);
+void sc_move(UI* ui, Scryx sc){
+	wmove(ui->main_win, sc.y, sc.x);
 	return;
 }
 
 //Board
-void print_board(Content** b, const int side){
-	/* Prints board porperly
-	 */
-		
+///\brief Prints board properly
+void print_board(UI* ui, Content** b, const int side){
 	int i, j;
 	Scryx cell;
 	for(i=0; i<boardh(side); i++){
@@ -80,34 +77,36 @@ void print_board(Content** b, const int side){
 			Hex h = stor_to_hex(side, new_stor(i, j));
 
 			//Set screen coordinates
-			cell = hex_to_scryx(side, h);
+			cell = hex_to_scryx(ui, h);
 
 			//Print cell
-			sc_move(cell);
+			sc_move(ui, cell);
 			Content ct = get_ct(b, side, h);
-			attron(COLOR_PAIR(ct));
+			wattron(ui->main_win, COLOR_PAIR(ct));
 			if(get_ct(b, side, h) != EMPTY){
-				attron(A_BOLD);
-				addch('O');
-				attroff(A_BOLD);
+				wattron(ui->main_win, A_BOLD);
+				waddch(ui->main_win, 'O');
+				wattroff(ui->main_win, A_BOLD);
 			}else{
-				addch('.');
+				waddch(ui->main_win, '.');
 			}
-			attroff(COLOR_PAIR(ct));
+			wattroff(ui->main_win, COLOR_PAIR(ct));
 		}
 	}
-	refresh();
+	wrefresh(ui->main_win);
 
 	return;
 }
 
 //Cells
-void link(const int side, Hex h1, Hex h2, int mode){
-	/* Prints or erases a link between adjacent hexes on the board.
-	 * mode = 1: print
-	 * mode = 0: erase
-	 */
-
+/**
+ * \brief Prints or erases a link between adjacent hexes on the board.
+ * 
+ * \param h1 First Hex to link
+ * \param h2 Second Hex to link
+ * \param mode If 1: print link; 0: erase link.
+ */
+void link(UI* ui, const int side, Hex h1, Hex h2, int mode){
 	//Wrong input: not on the board
 	if(get_zone(side, h1) == NOWHERE || get_zone(side, h2) == NOWHERE) return;
 	//Wrong input: not neighbors
@@ -128,51 +127,50 @@ void link(const int side, Hex h1, Hex h2, int mode){
 		link_char = '-';
 	}
 
-	Scryx sc1 = hex_to_scryx(side, h1);
-	Scryx sc2 = hex_to_scryx(side, h2);
+	Scryx sc1 = hex_to_scryx(ui, h1);
+	Scryx sc2 = hex_to_scryx(ui, h2);
 
-	move((sc1.y+sc2.y)/2, (sc1.x+sc2.x)/2);
-	addch(link_char);
-	refresh();
+	wmove(ui->main_win, (sc1.y+sc2.y)/2, (sc1.x+sc2.x)/2);
+	waddch(ui->main_win, link_char);
+	wrefresh(ui->main_win);
 	return;
 }
 
 //User interaction
-Hex move_cursor(Content** b, const int side, Hex curs_h){
-	/* Interactively moves cursor on the board
-	 */
+///\brief Interactively moves cursor on the board
+Hex move_cursor(UI* ui, Content** b, const int side, Hex curs_h){
 	int cont = 1;
 	Hex next;
 	Content ct;
 	int ch;
 	while(cont){
 		//Print cursor
-		sc_move(hex_to_scryx(side, curs_h));
+		sc_move(ui, hex_to_scryx(ui, curs_h));
 		ct = get_ct(b, side, curs_h);
-		attrset(COLOR_PAIR(ct) | A_REVERSE);
+		wattrset(ui->main_win, COLOR_PAIR(ct) | A_REVERSE);
 		if(ct != EMPTY){
-			addch('O');
+			waddch(ui->main_win, 'O');
 		}else{
-			addch('.');
+			waddch(ui->main_win, '.');
 		}
-		refresh();
+		wrefresh(ui->main_win);
 
 		//Get user input and move
-		ch = getch();
+		ch = wgetch(ui->main_win);
 		next = curs_h;
 		if(ch == CTRLS_RIGHT){
 			next.q++;
-		}else if(ch == CTRLS_TOP_RIGHT){
+		}else if(ch == CTRLS_TOP2){
 			next.r--;
 			next.q++;
-		}else if(ch == CTRLS_TOP_LEFT){
+		}else if(ch == CTRLS_TOP1){
 			next.r--;
 		}else if(ch == CTRLS_LEFT){
 			next.q--;
-		}else if(ch == CTRLS_BOT_LEFT){
+		}else if(ch == CTRLS_BOT2){
 			next.r++;
 			next.q--;
-		}else if(ch == CTRLS_BOT_RIGHT){
+		}else if(ch == CTRLS_BOT1){
 			next.r++;
 		}else if(ch == CTRLS_OK){
 			cont = 0;
@@ -180,20 +178,32 @@ Hex move_cursor(Content** b, const int side, Hex curs_h){
 		
 		//If next is correct, erase and move
 		if(get_zone(side, next) != NOWHERE){
-			sc_move(hex_to_scryx(side, curs_h));
-			attroff(A_REVERSE);
+			sc_move(ui, hex_to_scryx(ui, curs_h));
+			wattroff(ui->main_win, A_REVERSE);
 			if(ct != EMPTY){
-				attron(A_BOLD);
-				addch('O');
+				wattron(ui->main_win, A_BOLD);
+				waddch(ui->main_win, 'O');
 			}else{
-				attron(A_NORMAL);
-				addch('.');
+				wattron(ui->main_win, A_NORMAL);
+				waddch(ui->main_win, '.');
 			}
-			refresh();
+			wrefresh(ui->main_win);
 			curs_h = next;
 		}
 	}
-	standend();
+	wstandend(ui->main_win);
 	return curs_h;
+}
+
+//Not board or cell related
+/**
+ * \brief A menu from which the user is able to choose
+ * 
+ * \param title The menu title
+ * \param len number of possible choices, that is, length of items[]
+ * \param items[] array of string to be chosen from
+ */
+int choice_menu(UI* ui, char titre[], int len, char* items[]){
+	return 0;
 }
 

@@ -8,7 +8,9 @@
 #include "data_struct.h"
 #include "text_ui.h"
 
-void link_accessible_from(Content**, const int, int*, Hex*, int);
+//In-game info
+void link_accessible_from(UI*, Content**, const int, int*, Hex*, int);
+
 
 #endif
 
