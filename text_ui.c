@@ -24,8 +24,9 @@ UI* ui_init(){
 	init_pair(MAGENTA,	COLOR_MAGENTA,		COLOR_BLACK);
 	init_pair(CYAN,		COLOR_CYAN,		COLOR_BLACK);
 
-	//Windows
+	//UI struct init.
 	UI* ui = (UI*) malloc(sizeof(UI));
+	ui->signal = CONTINUE;
 	ui->main_win = newwin(LINES, COLS, 0, 0);
 	box(ui->main_win, 0, 0);
 	wrefresh(ui->main_win);
@@ -38,6 +39,14 @@ void ui_terminate(UI* ui){
 	wrefresh(ui->main_win);
 	delwin(ui->main_win);
 	endwin();
+	return;
+}
+
+///\brief Correctly clear screen
+void ui_clear(UI* ui){
+	wclear(ui->main_win);
+	box(ui->main_win, 0, 0);
+	wrefresh(ui->main_win);
 	return;
 }
 
@@ -57,7 +66,7 @@ Scryx hex_to_scryx(UI* ui, Hex h){
 Scryx center_coordinates(UI* ui){
 	int h, w;
 	getmaxyx(ui->main_win, h, w);
-	return new_scryx(h/2, w/2);
+	return new_scryx(h/2-1, w/2-1);
 }
 
 void sc_move(UI* ui, Scryx sc){
@@ -174,6 +183,9 @@ Hex move_cursor(UI* ui, Content** b, const int side, Hex curs_h){
 			next.r++;
 		}else if(ch == CTRLS_OK){
 			cont = 0;
+		}else if(ch == CTRLS_QUIT){
+			ui->signal = QUIT;
+			cont = 0;
 		}
 		
 		//If next is correct, erase and move
@@ -203,7 +215,40 @@ Hex move_cursor(UI* ui, Content** b, const int side, Hex curs_h){
  * \param len number of possible choices, that is, length of items[]
  * \param items[] array of string to be chosen from
  */
-int choice_menu(UI* ui, char titre[], int len, char* items[]){
-	return 0;
+int choice_menu(UI* ui, char* title, int len, char** items){
+	int h = getmaxy(ui->main_win);
+	int i, ch;
+	Scryx sc;
+	sc.y = h/2-len;
+	sc.x = 2;
+	
+	//First display
+	sc_move(ui, sc);
+	wattrset(ui->main_win, A_REVERSE);
+	waddstr(ui->main_win, title);
+	for(i=0; i<len; i++){
+		wmove(ui->main_win, sc.y+2*i+2, sc.x+2*i+2);
+		wattrset(ui->main_win, COLOR_PAIR(1+i%6) | A_BOLD);
+		waddch(ui->main_win, 'O');
+		wattrset(ui->main_win, A_NORMAL);
+		wprintw(ui->main_win, " %s", items[i]);
+	}
+	
+	//User choice
+	i = 0;
+	wmove(ui->main_win, sc.y+2, sc.x+2);
+	wchgat(ui->main_win, 1, A_REVERSE, 1+i%6, NULL);
+	while((ch = wgetch(ui->main_win)) != CTRLS_OK){
+		wchgat(ui->main_win, 1, A_BOLD, 1+i%6, NULL);
+		if(ch == CTRLS_TOP1){
+			i = (i>0) ? i-1 : len-1;
+		}else if(ch == CTRLS_BOT1){
+			i = (i<len-1) ? i+1 : 0;
+		}
+		wmove(ui->main_win, sc.y+2*i+2, sc.x+2*i+2);
+		wchgat(ui->main_win, 1, A_REVERSE, 1+i%6, NULL);
+	}
+	ui_clear(ui);
+	return i;
 }
 
