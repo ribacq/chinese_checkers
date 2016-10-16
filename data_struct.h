@@ -69,6 +69,7 @@ Content get_ct(Content**, const int, Hex);
 void set_ct(Content**, const int, Hex, Content);
 int distance(Hex, Hex);
 Hex* neighbors(const int, Hex, int*);
+int in_cell_array(Hex, int, Hex*);
 ///\}
 #endif
 

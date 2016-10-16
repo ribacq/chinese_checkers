@@ -77,6 +77,7 @@ void sc_move(UI* ui, Scryx sc){
 //Board
 ///\brief Prints board properly
 void print_board(UI* ui, Content** b, const int side){
+	wstandend(ui->main_win);
 	int i, j;
 	Scryx cell;
 	for(i=0; i<boardh(side); i++){
@@ -145,6 +146,27 @@ void link(UI* ui, const int side, Hex h1, Hex h2, int mode){
 	return;
 }
 
+/**
+ * \brief Moves a pieces on the board
+ *
+ * \param from Cell from which to take the piece
+ * \param from Cell to which the piece is taken
+ *
+ * It verifies if from really is a piece and to an empty cell, but not whether
+ * the piece has the right to do the move.
+ */
+void move_piece(UI* ui, Content** b, const int side, Hex from, Hex to){
+	//Wrong input
+	if(get_ct(b, side, from) == EMPTY || get_ct(b, side, from) == INVALID || get_ct(b, side, to) != EMPTY){
+		return;
+	}
+
+	//Correct input
+	set_ct(b, side, to, get_ct(b, side, from));
+	set_ct(b, side, from, EMPTY);
+	return;
+}
+
 //User interaction
 ///\brief Interactively moves cursor on the board
 Hex move_cursor(UI* ui, Content** b, const int side, Hex curs_h){
@@ -152,6 +174,11 @@ Hex move_cursor(UI* ui, Content** b, const int side, Hex curs_h){
 	Hex next;
 	Content ct;
 	int ch;
+	char *menu_title;
+	char *menu_items[] = {};
+	int nb_items;
+	int menu_res;
+	wstandend(ui->main_win);
 	while(cont){
 		//Print cursor
 		sc_move(ui, hex_to_scryx(ui, curs_h));
@@ -184,7 +211,17 @@ Hex move_cursor(UI* ui, Content** b, const int side, Hex curs_h){
 		}else if(ch == CTRLS_OK){
 			cont = 0;
 		}else if(ch == CTRLS_QUIT){
-			ui->signal = QUIT;
+			ui_clear(ui);
+			menu_title = "Are you sure you want to quit?";
+			menu_items[0] = "What, no, never!";
+			menu_items[1] = "Yes of course, this game is not very good.";
+			nb_items = 2;
+			menu_res = choice_menu(ui, menu_title, nb_items, menu_items);
+			if(menu_res){
+				ui->signal = QUIT;
+			}else{
+				print_board(ui, b, side);
+			}
 			cont = 0;
 		}
 		
@@ -224,6 +261,7 @@ int choice_menu(UI* ui, char* title, int len, char** items){
 	
 	//First display
 	sc_move(ui, sc);
+	wstandend(ui->main_win);
 	wattrset(ui->main_win, A_REVERSE);
 	waddstr(ui->main_win, title);
 	for(i=0; i<len; i++){
@@ -248,7 +286,37 @@ int choice_menu(UI* ui, char* title, int len, char** items){
 		wmove(ui->main_win, sc.y+2*i+2, sc.x+2*i+2);
 		wchgat(ui->main_win, 1, A_REVERSE, 1+i%6, NULL);
 	}
+	wstandend(ui->main_win);
 	ui_clear(ui);
 	return i;
+}
+
+///\brief Prompts user for a string
+void ui_prompt_string(UI* ui, char* dest, const char* prompt){
+	ui_clear(ui);
+	echo();
+	curs_set(TRUE);
+	wattrset(ui->main_win, A_REVERSE);
+	mvwaddstr(ui->main_win, getmaxy(ui->main_win)/2, 2, prompt);
+	wattrset(ui->main_win, A_BOLD);
+	mvwaddstr(ui->main_win, getmaxy(ui->main_win)/2+2, 4, "> ");
+	wstandend(ui->main_win);
+	wgetstr(ui->main_win, dest);
+	noecho();
+	curs_set(FALSE);
+	ui_clear(ui);
+	return;
+}
+
+///\brief Prints whose turn it is
+void print_status(UI* ui, Content ct, char* name){
+	wstandend(ui->main_win);
+	mvwhline(ui->main_win, 2, 1, ' ', getmaxx(ui->main_win)-2);
+	wattrset(ui->main_win, A_BOLD);
+	mvwprintw(ui->main_win, 2, 2, "Current player: ");
+	wattron(ui->main_win, COLOR_PAIR(ct));
+	wprintw(ui->main_win, name);
+	wstandend(ui->main_win);
+	return;
 }
 

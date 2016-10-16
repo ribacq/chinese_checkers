@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "data_struct.h"
 #include "text_ui.h"
 #include "game.h"
@@ -34,49 +35,42 @@ int main(int argc, char* argv[]){
 	//UI init
 	UI* ui = ui_init();
 
-	//Set board side default or conmand-line arg.
+	//Set board side to default or conmand-line arg.
 	int side = DEF_BOARD_SIDE;
 	if(argc == 2){
 		side = strtol(argv[1], NULL, 10);
 	}
+	Content** b;
 	
-	//Set menu title
+	//Menu
 	char* menu_title = "Chinese Checkers";
-	char* menu_items[] = {"Test", "Nope", "Nope", "Quit"};
+	char* menu_items[] = {"Play", "Quit"};
 	int menu_len = sizeof(menu_items)/sizeof(menu_items[0]);
 	int user_action;
-	
+
 	//Print menu and do main loop
 	user_action = choice_menu(ui, menu_title, menu_len, menu_items);
 	while(user_action != menu_len-1){
 		if(user_action == 0){
-			Content** b = init_board(side);
-			set_ct(b, side, new_hex(2, -1), CYAN);
-			set_ct(b, side, new_hex(0, -1), YELLOW);
-			set_ct(b, side, new_hex(0, 0), RED);
-			set_ct(b, side, new_hex(2, -2), BLUE);
-			set_ct(b, side, new_hex(-1, 0), MAGENTA);
-			set_ct(b, side, new_hex(-2, 1), GREEN);
+			//Players
+			Player* cur_plr = init_players(ui);
+
+			//Board
+			b = init_board(side);
+
+			//Loop
 			print_board(ui, b, side);
-			
-			//*
-			int nb;
-			Hex curs_h = move_cursor(ui, b, side, new_hex(0, 0));
-			Hex tmp_h = curs_h;
-			Hex cells[side*side];
+			print_status(ui, cur_plr->ct, cur_plr->name);
 			while(ui->signal != QUIT){
-				nb = 1;
-				cells[0] = curs_h;
-				link_accessible_from(ui, b, side, &nb, cells, 1);
-				tmp_h = move_cursor(ui, b, side, curs_h);
-				nb = 1;
-				cells[0] = curs_h;
-				link_accessible_from(ui, b, side, &nb, cells, 0);
-				curs_h = tmp_h;
+				play_turn(ui, b, side, cur_plr);
+				cur_plr = cur_plr->next;
+				print_board(ui, b, side);
+				print_status(ui, cur_plr->ct, cur_plr->name);
 			}
-			//*/
 			ui_clear(ui);
+			free(b);
 		}
+		ui->signal = CONTINUE;
 		user_action = choice_menu(ui, menu_title, menu_len, menu_items);
 	}
 	//End

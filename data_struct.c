@@ -225,3 +225,14 @@ Hex* neighbors(const int side, Hex h, int* len){
 	return neighs;
 }
 
+///\brief Returns boolean (0/1) expressing if given Hex is in given Hex array.
+int in_cell_array(Hex h, int len, Hex* arr){
+	int i = 0;
+	int ret = 0;
+	while(i<len && !ret){
+		ret = (h.r == arr[i].r) && (h.q == arr[i].q);
+		i++;
+	}
+	return ret;
+}
+

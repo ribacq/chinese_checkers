@@ -35,7 +35,7 @@
 ///\brief User Interface data structure
 typedef struct{
 	WINDOW* main_win; ///< \brief Pointer to main curses window.
-	enum { CONTINUE, PAUSE, QUIT } signal; ///< \brief message to the outside.
+	enum { CONTINUE, QUIT } signal; ///< \brief message to the outside.
 } UI;
 UI* ui_init();
 void ui_terminate(UI*);
@@ -56,17 +56,20 @@ Scryx center_coordinates(UI*);
 ///\brief wmove equivalent, with Scryx parameter
 void sc_move(UI*, Scryx);
 
-//Not board or cell related
-int choice_menu(UI*, char*, int, char**);
-
 //Board generals
 void print_board(UI*, Content**, const int);
 
 //Cells
 void link(UI*, const int, Hex, Hex, int);
+void move_piece(UI*, Content**, const int, Hex, Hex);
 
 //User interaction
 Hex move_cursor(UI*, Content**, const int, Hex);
+
+//Not board or cell related
+int choice_menu(UI*, char*, int, char**);
+void ui_prompt_string(UI*, char*, const char*);
+void print_status(UI*, Content, char*);
 
 #endif
 

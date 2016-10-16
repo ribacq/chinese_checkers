@@ -10,8 +10,8 @@ all: ${OBJ}
 	${CC} ${CFLAGS} ${LIBS} -o ${OUT} ${OBJ}
 
 data_struct.o:	data_struct.h
-text_ui.o:	data_struct.h text_ui.h
 game.o:		data_struct.h text_ui.h
+text_ui.o:	data_struct.h text_ui.h game.h
 main.o:		data_struct.h text_ui.h game.h
 
 .PHONY: clean
