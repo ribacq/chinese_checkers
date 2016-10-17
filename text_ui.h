@@ -18,15 +18,15 @@
 
 ///\defgroup controls_text_ui_gp Key Bindings in the Text UI
 ///\{
-#define CTRLS_RIGHT 'n'
-#define CTRLS_TOP2  'l'
-#define CTRLS_TOP1  'r'
-#define CTRLS_LEFT  't'
-#define CTRLS_BOT2  'd'
-#define CTRLS_BOT1  's'
-#define CTRLS_OK    ' '
-#define CTRLS_BACK  'v'
-#define CTRLS_QUIT  'q'
+static const int CTRLS_RIGHT = 'n';
+static const int CTRLS_TOP2  = 'l';
+static const int CTRLS_TOP1  = 'r';
+static const int CTRLS_LEFT  = 't';
+static const int CTRLS_BOT2  = 'd';
+static const int CTRLS_BOT1  = 's';
+static const int CTRLS_OK    = ' ';
+static const int CTRLS_BACK  = 'v';
+static const int CTRLS_QUIT  = 'q';
 ///\}
 
 ///\defgroup general_text_ui_gp General Text UI functions and data

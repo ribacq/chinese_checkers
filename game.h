@@ -12,14 +12,17 @@
 
 ///\brief Data struct to represent the players
 typedef struct player_struct{
-	Content ct; ///< \brief Displayed color and pieces identifier.
+	Content ct; ///< \brief Displayed color and pieces identifier
+	Zone goal; ///< \brief Where the player’s pieces must go
+	Hex curs_h; ///< \brief Player’s personal cursor
 	char name[10]; ///< \brief Player’s name
-	struct player_struct* next; ///< \brief Pointer to next player to play.
+	struct player_struct* next; ///< \brief Pointer to next player to play
 } Player;
 
-Player* init_players(UI*);
+Player* init_players(UI*, int*);
 void link_accessible_from(UI*, Content**, const int, int*, Hex[], int);
 void play_turn(UI*, Content**, const int, Player*);
+int has_won(Content**, const int, Player*);
 
 #endif
 

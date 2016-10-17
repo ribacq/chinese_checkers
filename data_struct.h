@@ -61,6 +61,10 @@ Content** init_board(const int);
 int boardh(const int);
 int linew(const int, int);
 Zone get_zone(const int, Hex);
+Zone get_opposite(Zone);
+int get_corner_size(const int);
+Hex* get_corner_array(const int, Zone);
+void set_corner_ct(Content**, const int, Zone, Content);
 ///\}
 
 ///\defgroup cells_fn_gp Cells functions

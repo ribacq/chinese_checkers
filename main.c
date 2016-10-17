@@ -52,17 +52,27 @@ int main(int argc, char* argv[]){
 	user_action = choice_menu(ui, menu_title, menu_len, menu_items);
 	while(user_action != menu_len-1){
 		if(user_action == 0){
-			//Players
-			Player* cur_plr = init_players(ui);
-
 			//Board
 			b = init_board(side);
+			
+			//Players
+			int nb_players;
+			Player* cur_plr = init_players(ui, &nb_players);
+			int i;
+			for(i=0; i<nb_players; i++){
+				set_corner_ct(b, side, get_opposite(cur_plr->goal), cur_plr->ct);
+				cur_plr = cur_plr->next;
+			}
 
 			//Loop
 			print_board(ui, b, side);
 			print_status(ui, cur_plr->ct, cur_plr->name);
 			while(ui->signal != QUIT){
 				play_turn(ui, b, side, cur_plr);
+				if(has_won(b, side, cur_plr)){
+					//Game Over
+					ui->signal = QUIT;
+				}
 				cur_plr = cur_plr->next;
 				print_board(ui, b, side);
 				print_status(ui, cur_plr->ct, cur_plr->name);

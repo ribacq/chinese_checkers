@@ -44,6 +44,7 @@ void ui_terminate(UI* ui){
 
 ///\brief Correctly clear screen
 void ui_clear(UI* ui){
+	wstandend(ui->main_win);
 	wclear(ui->main_win);
 	box(ui->main_win, 0, 0);
 	wrefresh(ui->main_win);

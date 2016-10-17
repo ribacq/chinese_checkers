@@ -78,7 +78,7 @@ Hex cube_to_hex(Cube c){
  * \brief Returns the default staring board.
  * 
  * Contents are stored in a two-dimensional table initialized with by defalut
- * EMPTY in the CENTER and colors in the corners.
+ * EMPTY everywhere.
  */
 Content** init_board(const int side){
 	//General creation
@@ -90,35 +90,7 @@ Content** init_board(const int side){
 	for(i=0; i<boardh(side); i++){
 		b[i] = (Content*) malloc(sizeof(Content)*linew(side, i));
 		for(j=0; j<linew(side, i); j++){
-			switch(get_zone(side, stor_to_hex(side, new_stor(i, j)))){
-			case TOP:
-				b[i][j] = RED;
-				break;
-
-			case TOP_LEFT:
-				b[i][j] = GREEN;
-				break;
-
-			case BOT_LEFT:
-				b[i][j] = YELLOW;
-				break;
-
-			case BOT:
-				b[i][j] = BLUE;
-				break;
-
-			case BOT_RIGHT:
-				b[i][j] = MAGENTA;
-				break;
-
-			case TOP_RIGHT:
-				b[i][j] = CYAN;
-				break;
-
-			default:
-				b[i][j] = EMPTY;
-				break;
-			}
+			b[i][j] = EMPTY;
 		}
 	}
 
@@ -166,11 +138,137 @@ Zone get_zone(const int side, Hex h){
 	}
 }
 
+///\brief Returns opposite zone
+Zone get_opposite(Zone zn){
+	Zone ret;
+	switch(zn){
+	case TOP:
+		ret = BOT;
+		break;
+	case TOP_LEFT:
+		ret = BOT_RIGHT;
+		break;
+	case BOT_LEFT:
+		ret = TOP_RIGHT;
+		break;
+	case BOT:
+		ret = TOP;
+		break;
+	case BOT_RIGHT:
+		ret = TOP_LEFT;
+		break;
+	case TOP_RIGHT:
+		ret = BOT_LEFT;
+		break;
+	default:
+		ret = NOWHERE;
+		break;
+	}
+	return ret;
+}
+
+///\brief Returns number of cells in a star corner
+int get_corner_size(const int side){
+	return (side*side-side)/2;
+}
+
+/**
+ * \brief Returns a Hex array containing coordinates of cells in given corner
+ *
+ * \param zone Must be a corner, that is, neither CENTER nor NOWHERE
+ */
+Hex* get_corner_array(const int side, Zone corner){
+	//Wrong input
+	if(corner == CENTER || corner == NOWHERE) return NULL;
+
+	//Correct input
+	Hex cur; //Currently seen cell
+	Hex to_next_line; //What to add to pass to the next time
+	Hex to_next_in_line; //How to go to the next cell in current line
+	Hex* hexes = (Hex*) malloc(get_corner_size(side)*sizeof(Hex));
+	switch(corner){
+	case TOP:
+		cur = new_hex(-2*(side-1), side-1);
+		to_next_line = new_hex(1, -1);
+		to_next_in_line = new_hex(0, 1);
+		break;
+	case TOP_LEFT:
+		cur = new_hex(1-side, 1-side);
+		to_next_line = new_hex(1, 0);
+		to_next_in_line = new_hex(-1, 1);
+		break;
+	case BOT_LEFT:
+		cur = new_hex(side-1, -2*(side-1));
+		to_next_line = new_hex(0, 1);
+		to_next_in_line = new_hex(-1, 0);
+		break;
+	case BOT:
+		cur = new_hex(2*(side-1), 1-side);
+		to_next_line = new_hex(-1, 1);
+		to_next_in_line = new_hex(0, -1);
+		break;
+	case BOT_RIGHT:
+		cur = new_hex(side-1, side-1);
+		to_next_line = new_hex(-1, 0);
+		to_next_in_line = new_hex(1, -1);
+		break;
+	case TOP_RIGHT:
+		cur = new_hex(1-side, 2*(side-1));
+		to_next_line = new_hex(0, -1);
+		to_next_in_line = new_hex(1, 0);
+		break;
+	default:
+		//This is not supposed to happen.
+		break;
+	}
+	hexes[0] = cur;
+	int line_len = 1;
+	int pos_in_line = 1;
+	int i;
+	//Iter as many times as cells in corner
+	for(i=1; i<get_corner_size(side); i++){
+		if(pos_in_line >= line_len){
+			//If end of current line:
+			//Go back to beginning of line
+			cur.r -= to_next_in_line.r*(line_len-1);
+			cur.q -= to_next_in_line.q*(line_len-1);
+			//Go to next line
+			cur.r += to_next_line.r;
+			cur.q += to_next_line.q;
+			//Update line status variables
+			line_len++;
+			pos_in_line = 1;
+		}else{
+			//If not end of current line:
+			//Go to next cell in line
+			cur.r += to_next_in_line.r;
+			cur.q += to_next_in_line.q;
+			//Update line status variable
+			pos_in_line++;
+		}
+		hexes[i] = cur;
+	}
+	return hexes;
+}
+
+///\brief Sets every cell in given star corner to given content value
+void set_corner_ct(Content** b, const int side, Zone zn, Content ct){
+	//Wrong input
+	if(zn == CENTER || zn == NOWHERE) return;
+
+	//Correct input
+	Hex *hexes = get_corner_array(side, zn);
+	int i;
+	for(i=0; i<get_corner_size(side); i++){
+		set_ct(b, side, hexes[i], ct);
+	}
+	free(hexes);
+	return;
+}
+
 //Cell functions
 ///\brief Returns the content of given hex on board
 Content get_ct(Content** b, const int side, Hex h){
-	/* Returns the content of given hex
-	 */
 	if(get_zone(side, h) == NOWHERE) return INVALID;
 	Stor s = hex_to_stor(side, h);
 	return b[s.i][s.j];
