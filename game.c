@@ -181,7 +181,7 @@ void play_turn(UI* ui, Content** b, const int side, Player* plr){
 	Hex from, to = plr->curs_h;
 	while(!move_made && ui->signal != QUIT){
 		from = move_cursor(ui, b, side, to);
-		if(get_ct(b, side, from) == plr->ct){
+		if(get_ct(b, side, from) == plr->ct && ui->signal != QUIT){
 			nb = 1; possibilities[0] = from;
 			link_accessible_from(ui, b, side, &nb, possibilities, 1);
 			to = move_cursor(ui, b, side, from);

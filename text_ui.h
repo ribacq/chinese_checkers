@@ -18,12 +18,10 @@
 
 ///\defgroup controls_text_ui_gp Key Bindings in the Text UI
 ///\{
-static const int CTRLS_RIGHT = 'n';
-static const int CTRLS_TOP2  = 'l';
-static const int CTRLS_TOP1  = 'r';
 static const int CTRLS_LEFT  = 't';
-static const int CTRLS_BOT2  = 'd';
-static const int CTRLS_BOT1  = 's';
+static const int CTRLS_BOT   = 's';
+static const int CTRLS_TOP   = 'r';
+static const int CTRLS_RIGHT = 'n';
 static const int CTRLS_OK    = ' ';
 static const int CTRLS_BACK  = 'v';
 static const int CTRLS_QUIT  = 'q';
@@ -70,6 +68,7 @@ Hex move_cursor(UI*, Content**, const int, Hex);
 int choice_menu(UI*, char*, int, char**);
 void ui_prompt_string(UI*, char*, const char*);
 void print_status(UI*, Content, char*);
+void disp_msg(UI*, Content, char*);
 
 #endif
 

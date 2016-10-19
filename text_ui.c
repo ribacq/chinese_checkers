@@ -197,18 +197,20 @@ Hex move_cursor(UI* ui, Content** b, const int side, Hex curs_h){
 		next = curs_h;
 		if(ch == CTRLS_RIGHT){
 			next.q++;
-		}else if(ch == CTRLS_TOP2){
+		}else if(ch == CTRLS_TOP){
 			next.r--;
-			next.q++;
-		}else if(ch == CTRLS_TOP1){
-			next.r--;
+			next.q += abs(next.r)%2;
+			if(get_zone(side, next) == NOWHERE){
+				next.q += 1-2*(abs(next.r)%2);
+			}
 		}else if(ch == CTRLS_LEFT){
 			next.q--;
-		}else if(ch == CTRLS_BOT2){
+		}else if(ch == CTRLS_BOT){
 			next.r++;
-			next.q--;
-		}else if(ch == CTRLS_BOT1){
-			next.r++;
+			next.q -= 1-abs(next.r)%2;
+			if(get_zone(side, next) == NOWHERE){
+				next.q += 1-2*(abs(next.r)%2);
+			}
 		}else if(ch == CTRLS_OK){
 			cont = 0;
 		}else if(ch == CTRLS_QUIT){
@@ -279,9 +281,9 @@ int choice_menu(UI* ui, char* title, int len, char** items){
 	wchgat(ui->main_win, 1, A_REVERSE, 1+i%6, NULL);
 	while((ch = wgetch(ui->main_win)) != CTRLS_OK){
 		wchgat(ui->main_win, 1, A_BOLD, 1+i%6, NULL);
-		if(ch == CTRLS_TOP1){
+		if(ch == CTRLS_TOP){
 			i = (i>0) ? i-1 : len-1;
-		}else if(ch == CTRLS_BOT1){
+		}else if(ch == CTRLS_BOT){
 			i = (i<len-1) ? i+1 : 0;
 		}
 		wmove(ui->main_win, sc.y+2*i+2, sc.x+2*i+2);
@@ -318,6 +320,31 @@ void print_status(UI* ui, Content ct, char* name){
 	wattron(ui->main_win, COLOR_PAIR(ct));
 	wprintw(ui->main_win, name);
 	wstandend(ui->main_win);
+	return;
+}
+
+/**
+ * \brief Prints a message in a text box
+ *
+ * \param color The color in which to display the message. Obviously it mustn’t
+ *		be EMPTY or INVALID.
+ * \param msg The message to display
+ */
+void disp_msg(UI* ui, Content color, char* msg){
+	//Wrong input
+	if(color == EMPTY || color == INVALID) return;
+
+	//Correct input
+	ui_clear(ui);
+	wattrset(ui->main_win, A_REVERSE);
+	mvwaddstr(ui->main_win, getmaxy(ui->main_win)/2, 2, "Information available:");
+	wattrset(ui->main_win, A_BOLD);
+	mvwaddstr(ui->main_win, getmaxy(ui->main_win)/2+2, 4, "> ");
+	wattrset(ui->main_win, COLOR_PAIR(color));
+	mvwaddstr(ui->main_win, getmaxy(ui->main_win)/2+2, 6, msg);
+	wgetch(ui->main_win);
+	wstandend(ui->main_win);
+	ui_clear(ui);
 	return;
 }
 

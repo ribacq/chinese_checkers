@@ -71,6 +71,9 @@ int main(int argc, char* argv[]){
 				play_turn(ui, b, side, cur_plr);
 				if(has_won(b, side, cur_plr)){
 					//Game Over
+					char msg[20] = "";
+					sprintf(msg, "%s wins!", cur_plr->name);
+					disp_msg(ui, cur_plr->ct, msg);
 					ui->signal = QUIT;
 				}
 				cur_plr = cur_plr->next;
