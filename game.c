@@ -1,10 +1,14 @@
 #include "game.h"
 
+//Static functions
+static void init_player_color(UI *ui, Player *plr, Content availables[6]);
+
 /**
  * \brief Players setup
  *
  * Asks the user how many players there must be, and for each of them, their
  * name, and if the number of players allow it, their favorite colors.
+ * Also, it’s the ONLY function to make calls to init_player_color().
  */
 Player* init_players(UI* ui, int* nb_players){
 	//Number of players
@@ -15,106 +19,98 @@ Player* init_players(UI* ui, int* nb_players){
 	*nb_players = 2+menu_res+(menu_res == 3);
 	
 	//Colors and goals of players
-	Content cts[*nb_players];
 	Zone goals[*nb_players];
 	if(*nb_players == 2){
-		menu_title = "Please choose the playing colors:";
-		menu_items[0] = "Red VS. Blue";
-		menu_items[1] = "Green VS. Magenta";
-		menu_items[2] = "Yellow VS. Cyan";
-		nb_items = 3;
-		menu_res = choice_menu(ui, menu_title, nb_items, menu_items);
-		if(menu_res == 0){
-			cts[0] = RED;
-			cts[1] = BLUE;
-		}else if(menu_res == 1){
-			cts[0] = GREEN;
-			cts[1] = MAGENTA;
-		}else{
-			cts[0] = YELLOW;
-			cts[1] = CYAN;
-		}
 		goals[0] = TOP;
 		goals[1] = BOT;
 	}else if(*nb_players == 3){
-		menu_title = "Please choose the playing colors:";
-		menu_items[0] = "Red VS. Yellow VS. Magenta";
-		menu_items[1] = "Green VS. Blue VS. Cyan";
-		nb_items = 2;
-		menu_res = choice_menu(ui, menu_title, nb_items, menu_items);
-		if(menu_res == 0){
-			cts[0] = RED;
-			cts[1] = YELLOW;
-			cts[2] = MAGENTA;
-		}else{
-			cts[0] = GREEN;
-			cts[1] = BLUE;
-			cts[2] = CYAN;
-		}
 		goals[0] = TOP;
 		goals[1] = BOT_LEFT;
 		goals[2] = BOT_RIGHT;
 	}else if(*nb_players == 4){
-		menu_title = "Please choose the playing colors:";
-		menu_items[0] = "Green VS. Magenta VS. Yellow VS. Cyan";
-		menu_items[1] = "Green VS. Magenta VS. Blue VS. Red";
-		menu_items[2] = "Yellow VS. Cyan VS. Blue VS. Red";
-		nb_items = 3;
-		menu_res = choice_menu(ui, menu_title, nb_items, menu_items);
-		if(menu_res == 0){
-			cts[0] = GREEN;
-			cts[1] = YELLOW;
-			cts[2] = MAGENTA;
-			cts[3] = CYAN;
-		}else if(menu_res == 1){
-			cts[0] = GREEN;
-			cts[1] = BLUE;
-			cts[2] = MAGENTA;
-			cts[3] = RED;
-		}else if(menu_res == 2){
-			cts[0] = YELLOW;
-			cts[1] = BLUE;
-			cts[2] = CYAN;
-			cts[3] = RED;
-		}
 		goals[0] = TOP_LEFT;
 		goals[1] = BOT_LEFT;
 		goals[2] = BOT_RIGHT;
 		goals[3] = TOP_RIGHT;
-	}else{
-		cts[0] = RED;
-		goals[0] = TOP;
-		cts[1] = GREEN;
+	}else{		
+		goals[0] = TOP;	
 		goals[1] = TOP_LEFT;
-		cts[2] = YELLOW;
 		goals[2] = BOT_LEFT;
-		cts[3] = BLUE;
 		goals[3] = BOT;
-		cts[4] = MAGENTA;
 		goals[4] = BOT_RIGHT;
-		cts[5] = CYAN;
 		goals[5] = TOP_RIGHT;
 	}
 	
-	//Proper players
+	//First player
+	Content availables[6] = {RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN};
 	Player *p1 = (Player*) malloc(sizeof(Player));
-	p1->ct = cts[0];
 	p1->goal = goals[0];
 	p1->curs_h = new_hex(0, 0);
 	ui_prompt_string(ui, p1->name, "Please enter first player name:");
+	init_player_color(ui, p1, availables);
+	
+	//And the rest of them
 	Player *cur, *prev = p1;
 	int i;
 	for(i=1; i<*nb_players; i++){
 		cur = (Player*) malloc(sizeof(Player));
 		prev->next = cur;
-		cur->ct = cts[i];
 		cur->goal = goals[i];
 		cur->curs_h = new_hex(0, 0);
 		ui_prompt_string(ui, cur->name, "Please enter next player name:");
+		init_player_color(ui, cur, availables);
 		prev = cur;
 	}
 	cur->next = p1;
 	return p1;
+}
+
+/**
+ * \brief Manages the color choice menus during the Player objects creation
+ *
+ * This is a static function, called ONLY by init_players().
+ * 
+ * \param *plr the current player
+ * \param availables[6] must be initialized to
+ *	{RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN}
+ *	before first call of this function.
+ */
+static void init_player_color(UI *ui, Player *plr, Content availables[6]){
+	//Initial menu setup
+	char menu_title[50];
+	sprintf(menu_title, "%s, choose your color:", plr->name);
+	char *menu_items[6];
+	menu_items[0] = calloc(20, sizeof(char));
+	strcpy(menu_items[0], "Red");
+	menu_items[1] = calloc(20, sizeof(char));
+	strcpy(menu_items[1], "Green");
+	menu_items[2] = calloc(20, sizeof(char));
+	strcpy(menu_items[2], "Yellow");
+	menu_items[3] = calloc(20, sizeof(char));
+	strcpy(menu_items[3], "Blue");
+	menu_items[4] = calloc(20, sizeof(char));
+	strcpy(menu_items[4], "Magenta");
+	menu_items[5] = calloc(20, sizeof(char));
+	strcpy(menu_items[5], "Cyan");
+
+	//Remove not available from menu_items
+	int i;
+	for(i=0; i<6; i++){
+		if((availables[i] == EMPTY) || (availables[i] == INVALID)){
+			strcpy(menu_items[i], "N/A");
+		}
+	}
+	
+	//Finally use the menu in a loop
+	int choice;
+	do{
+		choice = choice_menu(ui, menu_title, 6, menu_items);
+	}while(strcmp(menu_items[choice], "N/A") == 0);
+	
+	//Use result
+	plr->ct = availables[choice];
+	availables[choice] = INVALID;
+	return;
 }
 
 /**

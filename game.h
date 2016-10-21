@@ -15,7 +15,7 @@ typedef struct player_struct{
 	Content ct; ///< \brief Displayed color and pieces identifier
 	Zone goal; ///< \brief Where the player’s pieces must go
 	Hex curs_h; ///< \brief Player’s personal cursor
-	char name[10]; ///< \brief Player’s name
+	char name[20]; ///< \brief Player’s name
 	struct player_struct* next; ///< \brief Pointer to next player to play
 } Player;
 

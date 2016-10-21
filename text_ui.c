@@ -252,8 +252,8 @@ Hex move_cursor(UI* ui, Content** b, const int side, Hex curs_h){
  * \brief A menu from which the user is able to choose
  * 
  * \param title The menu title
- * \param len number of possible choices, that is, length of items[]
- * \param items[] array of string to be chosen from
+ * \param len number of possible choices, that is, length of items
+ * \param items array of string to be chosen from
  */
 int choice_menu(UI* ui, char* title, int len, char** items){
 	int h = getmaxy(ui->main_win);

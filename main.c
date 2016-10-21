@@ -70,24 +70,24 @@ int main(int argc, char* argv[]){
 			while(ui->signal != QUIT){
 				play_turn(ui, b, side, cur_plr);
 				if(has_won(b, side, cur_plr)){
-					//Game Over
-					char msg[20] = "";
-					sprintf(msg, "%s wins!", cur_plr->name);
-					disp_msg(ui, cur_plr->ct, msg);
-					ui->signal = QUIT;
-				}
-				cur_plr = cur_plr->next;
-				print_board(ui, b, side);
-				print_status(ui, cur_plr->ct, cur_plr->name);
+				//Game Over
+				char msg[20] = "";
+				sprintf(msg, "%s wins!", cur_plr->name);
+				disp_msg(ui, cur_plr->ct, msg);
+				ui->signal = QUIT;
 			}
-			ui_clear(ui);
-			free(b);
+			cur_plr = cur_plr->next;
+			print_board(ui, b, side);
+			print_status(ui, cur_plr->ct, cur_plr->name);
 		}
-		ui->signal = CONTINUE;
-		user_action = choice_menu(ui, menu_title, menu_len, menu_items);
+		ui_clear(ui);
+		free(b);
 	}
-	//End
-	ui_terminate(ui);
-	return EXIT_SUCCESS;
+	ui->signal = CONTINUE;
+	user_action = choice_menu(ui, menu_title, menu_len, menu_items);
+}
+//End
+ui_terminate(ui);
+return EXIT_SUCCESS;
 }
 
