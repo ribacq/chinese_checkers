@@ -18,11 +18,11 @@
 
 ///\defgroup controls_text_ui_gp Key Bindings in the Text UI
 ///\{
-static const int CTRLS_LEFT  = 't';
-static const int CTRLS_BOT   = 's';
-static const int CTRLS_TOP   = 'r';
-static const int CTRLS_RIGHT = 'n';
-static const int CTRLS_OK    = ' ';
+static const int CTRLS_LEFT  = KEY_LEFT;
+static const int CTRLS_BOT   = KEY_DOWN;
+static const int CTRLS_TOP   = KEY_UP;
+static const int CTRLS_RIGHT = KEY_RIGHT;
+static const int CTRLS_OK    = '\n';
 static const int CTRLS_BACK  = 'v';
 static const int CTRLS_QUIT  = 'q';
 ///\}

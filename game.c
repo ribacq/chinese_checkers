@@ -183,7 +183,7 @@ void play_turn(UI* ui, Content** b, const int side, Player* plr){
 			to = move_cursor(ui, b, side, from);
 			nb = 1; possibilities[0] = from;
 			link_accessible_from(ui, b, side, &nb, possibilities, 0);
-			if((to.r != from.r || to.q != from.q) && ((get_zone(side, to) == CENTER) || (get_zone(side, to) == plr->goal)) && in_cell_array(to, nb, possibilities)){
+			if((to.r != from.r || to.q != from.q) && in_cell_array(to, nb, possibilities)){
 				//Move the piece and launch next player’s turn
 				move_piece(ui, b, side, from, to);
 				move_made = 1;

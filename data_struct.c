@@ -78,7 +78,7 @@ Hex cube_to_hex(Cube c){
  * \brief Returns the default staring board.
  * 
  * Contents are stored in a two-dimensional table initialized with by defalut
- * EMPTY everywhere.
+ * EMPTY everywhere and INVALID in the corners.
  */
 Content** init_board(const int side){
 	//General creation
@@ -90,7 +90,11 @@ Content** init_board(const int side){
 	for(i=0; i<boardh(side); i++){
 		b[i] = (Content*) malloc(sizeof(Content)*linew(side, i));
 		for(j=0; j<linew(side, i); j++){
-			b[i][j] = EMPTY;
+			if(get_zone(side, stor_to_hex(side, new_stor(i, j))) == CENTER){
+				b[i][j] = EMPTY;
+			}else{
+				b[i][j] = INVALID;
+			}
 		}
 	}
 

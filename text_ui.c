@@ -3,11 +3,17 @@
 //General UI functions
 ///\brief UI initialization
 UI* ui_init(){
-	initscr();		//Starts ncurses mode
-	raw();			//Disables line buffering
-	noecho();		//Disables input echo
-	curs_set(FALSE);	//Hides cursor
-	keypad(stdscr, TRUE);	//Enable special keys
+	initscr();			//Starts ncurses mode
+	raw();				//Disables line buffering
+	noecho();			//Disables input echo
+	curs_set(FALSE);		//Hides cursor
+	
+	//UI struct init.
+	UI* ui = (UI*) malloc(sizeof(UI));
+	ui->main_win = newwin(LINES, COLS, 0, 0);
+	keypad(ui->main_win, TRUE);	//Enable special keys
+
+	ui->signal = CONTINUE;
 	
 	//Colors
 	if(has_colors() == FALSE){
@@ -23,11 +29,9 @@ UI* ui_init(){
 	init_pair(BLUE,		COLOR_BLUE,		COLOR_BLACK);
 	init_pair(MAGENTA,	COLOR_MAGENTA,		COLOR_BLACK);
 	init_pair(CYAN,		COLOR_CYAN,		COLOR_BLACK);
+	init_pair(INVALID,      COLOR_BLACK,            COLOR_BLACK);
 
-	//UI struct init.
-	UI* ui = (UI*) malloc(sizeof(UI));
-	ui->signal = CONTINUE;
-	ui->main_win = newwin(LINES, COLS, 0, 0);
+	//Display
 	box(ui->main_win, 0, 0);
 	wrefresh(ui->main_win);
 	return ui;
@@ -200,7 +204,7 @@ Hex move_cursor(UI* ui, Content** b, const int side, Hex curs_h){
 		}else if(ch == CTRLS_TOP){
 			next.r--;
 			next.q += abs(next.r)%2;
-			if(get_zone(side, next) == NOWHERE){
+			if((get_zone(side, next) == NOWHERE) || (get_ct(b, side, next) == INVALID)){
 				next.q += 1-2*(abs(next.r)%2);
 			}
 		}else if(ch == CTRLS_LEFT){
@@ -208,7 +212,7 @@ Hex move_cursor(UI* ui, Content** b, const int side, Hex curs_h){
 		}else if(ch == CTRLS_BOT){
 			next.r++;
 			next.q -= 1-abs(next.r)%2;
-			if(get_zone(side, next) == NOWHERE){
+			if((get_zone(side, next) == NOWHERE) || (get_ct(b, side, next) == INVALID)){
 				next.q += 1-2*(abs(next.r)%2);
 			}
 		}else if(ch == CTRLS_OK){
@@ -229,7 +233,7 @@ Hex move_cursor(UI* ui, Content** b, const int side, Hex curs_h){
 		}
 		
 		//If next is correct, erase and move
-		if(get_zone(side, next) != NOWHERE){
+		if((get_zone(side, next) != NOWHERE) && (get_ct(b, side, next) != INVALID)){
 			sc_move(ui, hex_to_scryx(ui, curs_h));
 			wattroff(ui->main_win, A_REVERSE);
 			if(ct != EMPTY){
