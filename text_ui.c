@@ -258,7 +258,7 @@ int choice_menu(UI *ui, char *title, const int len, char **items) {
 	return i;
 }
 
-void ui_prompt_string(UI *ui, char *dest, const char *prompt) {
+void ui_prompt_string(UI *ui, char *dst, const char *prompt) {
 	ui_clear(ui);
 	echo();
 	curs_set(TRUE);
@@ -267,7 +267,7 @@ void ui_prompt_string(UI *ui, char *dest, const char *prompt) {
 	wattrset(ui->main_win, A_BOLD);
 	mvwaddstr(ui->main_win, getmaxy(ui->main_win) / 2 + 2, 4, "> ");
 	wstandend(ui->main_win);
-	wgetstr(ui->main_win, dest);
+	wgetstr(ui->main_win, dst);
 	noecho();
 	curs_set(FALSE);
 	ui_clear(ui);
@@ -293,7 +293,7 @@ void disp_msg(UI *ui, Content ct, char *msg) {
 	mvwaddstr(ui->main_win, getmaxy(ui->main_win) / 2, 2, "Information available:");
 	wattrset(ui->main_win, A_BOLD);
 	mvwaddstr(ui->main_win, getmaxy(ui->main_win) / 2 + 2, 4, "> ");
-	wattrset(ui->main_win, COLOR_PAIR(color));
+	wattrset(ui->main_win, COLOR_PAIR(ct));
 	mvwaddstr(ui->main_win, getmaxy(ui->main_win) / 2 + 2, 6, msg);
 	wgetch(ui->main_win);
 	wstandend(ui->main_win);

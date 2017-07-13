@@ -137,7 +137,7 @@ int choice_menu(UI *ui, char *title, const int len, char **items);
 /**
  * \brief Prompts user for a string
  */
-void ui_prompt_string(UI *ui, char *dest, const char *prompt);
+void ui_prompt_string(UI *ui, char *dst, const char *prompt);
 
 /**
  * \brief Prints whose turn it is
@@ -147,8 +147,7 @@ void print_status(UI *ui, Content ct, char *name);
 /**
  * \brief Prints a message in a text box
  *
- * \param color The color in which to display the message. Obviously it mustn’t
- *		be EMPTY or INVALID.
+ * \param ct The color in which to display the message. It mustn’t be EMPTY.
  * \param msg The message to display
  */
 void disp_msg(UI *ui, Content ct, char *msg);
