@@ -107,17 +107,6 @@ void print_board(UI *ui, Content **b, const int side);
  */
 void link(UI *ui, const int side, Hex h1, Hex h2, int mode);
 
-/**
- * \brief Moves a piece on the board
- *
- * \param from Cell from which the piece is taken
- * \param to Cell to which the piece is taken
- *
- * It verifies if from really is a piece and to an empty cell, but not whether
- * the piece has the right to do the move.
- */
-void move_piece(UI *ui, Content **b, const int side, Hex from, Hex to);
-
 //User interaction
 /**
  * \brief Interactively moves cursor on the board

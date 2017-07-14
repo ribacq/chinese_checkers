@@ -131,15 +131,6 @@ void link(UI* ui, const int side, Hex h1, Hex h2, int mode) {
 	wrefresh(ui->main_win);
 }
 
-void move_piece(UI *ui, Content **b, const int side, Hex from, Hex to) {
-	//Wrong input
-	if (get_ct(b, side, from) == EMPTY || get_ct(b, side, from) == INVALID || get_ct(b, side, to) != EMPTY) return;
-
-	//Correct input
-	set_ct(b, side, to, get_ct(b, side, from));
-	set_ct(b, side, from, EMPTY);
-}
-
 //User interaction
 Hex move_cursor(UI* ui, Content** b, const int side, Hex curs_h) {
 	int cont = 1;

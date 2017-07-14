@@ -3,13 +3,6 @@
 //Static functions
 static void init_player_color(UI *ui, Player *plr, Content availables[6]);
 
-/**
- * \brief Players setup
- *
- * Asks the user how many players there must be, and for each of them, their
- * name, and if the number of players allow it, their favorite colors.
- * Also, it’s the ONLY function to make calls to init_player_color().
- */
 Player* init_players(UI* ui, int* nb_players){
 	//Number of players
 	char* menu_title = "How many players will there be?";
@@ -113,20 +106,15 @@ static void init_player_color(UI *ui, Player *plr, Content availables[6]){
 	return;
 }
 
-/**
- * \brief Display, erases and get the accessible cells
- * 
- * \param *nb pointer to the number of accessible cells
- *        *nb must equal 1 on function call from the outside.
- * \param cells[] array of coordinates to the accessible cells. Its first cell
- *        has to be initialized with the starting point.
- * \param mode if 1, link are drawn to show accessible cells; if 0, they’re
- *        erased.
- * 
- * Uses the link() function to make a display of cells currently accessible on
- * the board from the last hex in given array. In the case of a series of jumps,
- * the search makes the function call itself recursively.
- */
+void move_piece(Content **b, const int side, Hex from, Hex to) {
+	//Wrong input: from is not a piece
+	if (get_ct(b, side, from) == EMPTY || get_ct(b, side, from) == INVALID || get_ct(b, side, to) != EMPTY) return;
+
+	//Correct input
+	set_ct(b, side, to, get_ct(b, side, from));
+	set_ct(b, side, from, EMPTY);
+}
+
 void link_accessible_from(UI* ui, Content** b, const int side, int* nb, Hex cells[], int mode){
 	//Wrong input: source not on board
 	if(get_zone(side, cells[*nb-1]) == NOWHERE) return;
@@ -167,9 +155,6 @@ void link_accessible_from(UI* ui, Content** b, const int side, int* nb, Hex cell
 	return;
 }
 
-/**
- * \brief Play someones turn
- */
 void play_turn(UI* ui, Content** b, const int side, Player* plr){
 	int nb;
 	Hex possibilities[side*side];
@@ -185,7 +170,7 @@ void play_turn(UI* ui, Content** b, const int side, Player* plr){
 			link_accessible_from(ui, b, side, &nb, possibilities, 0);
 			if((to.r != from.r || to.q != from.q) && in_cell_array(to, nb, possibilities)){
 				//Move the piece and launch next player’s turn
-				move_piece(ui, b, side, from, to);
+				move_piece(b, side, from, to);
 				move_made = 1;
 			}
 		}
@@ -194,11 +179,6 @@ void play_turn(UI* ui, Content** b, const int side, Player* plr){
 	return;
 }
 
-/**
- * \brief Returns a boolean (0/1) indicating whether given Player has won.
- *
- * A Player has won if all of their pieces are in their opposed star corner.
- */
 int has_won(Content** b, const int side, Player* plr){
 	int ret = 1;
 	Hex* goal_arr = get_corner_array(side, plr->goal);
