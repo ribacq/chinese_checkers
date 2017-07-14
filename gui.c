@@ -4,7 +4,10 @@
  * See LICENSE file for legal information.
  */
 
-#include "gui.h"
+/* Graphical User Interface (SDL)
+ */
+
+#include "ui.h"
 
 static Hex *linked_cells = NULL;
 static int nb_linked_cells = 0;
@@ -27,16 +30,16 @@ UI *ui_init() {
 	ui->main_surf = SDL_GetWindowSurface(ui->main_win);
 	SDL_GetClipRect(ui->main_surf, &(ui->main_rect));
 
-	ui->cell_tiles[EMPTY] = IMG_Load("assets/img/empty.png");
-	ui->cell_tiles[RED] = IMG_Load("assets/img/red.png");
-	ui->cell_tiles[GREEN] = IMG_Load("assets/img/green.png");
-	ui->cell_tiles[YELLOW] = IMG_Load("assets/img/yellow.png");
-	ui->cell_tiles[BLUE] = IMG_Load("assets/img/blue.png");
-	ui->cell_tiles[MAGENTA] = IMG_Load("assets/img/magenta.png");
-	ui->cell_tiles[CYAN] = IMG_Load("assets/img/cyan.png");
-	ui->cell_tiles[INVALID] = IMG_Load("assets/img/invalid.png");
-	ui->selected_mask = IMG_Load("assets/img/selected.png");
-	ui->unselected_mask = IMG_Load("assets/img/unselected.png");
+	ui->cell_tiles[EMPTY]    = IMG_Load("assets/img/empty.png");
+	ui->cell_tiles[RED]      = IMG_Load("assets/img/red.png");
+	ui->cell_tiles[GREEN]    = IMG_Load("assets/img/green.png");
+	ui->cell_tiles[YELLOW]   = IMG_Load("assets/img/yellow.png");
+	ui->cell_tiles[BLUE]     = IMG_Load("assets/img/blue.png");
+	ui->cell_tiles[MAGENTA]  = IMG_Load("assets/img/magenta.png");
+	ui->cell_tiles[CYAN]     = IMG_Load("assets/img/cyan.png");
+	ui->cell_tiles[INVALID]  = IMG_Load("assets/img/invalid.png");
+	ui->selected_mask        = IMG_Load("assets/img/selected.png");
+	ui->unselected_mask      = IMG_Load("assets/img/unselected.png");
 
 	ui->cell_colors[EMPTY]   = 0x95a5a6;
 	ui->cell_colors[RED]     = 0xe74c3c;
@@ -53,8 +56,8 @@ UI *ui_init() {
 
 	ui->font = TTF_OpenFont("assets/fonts/FreeSerif.ttf", 16);
 
-	ui_clear(ui);
-	return ui;
+	ui_clear((UI *) ui);
+	return (UI *) ui;
 }
 
 void ui_terminate(UI *ui) {
@@ -77,18 +80,18 @@ void ui_clear(UI *ui) {
 	SDL_UpdateWindowSurface(ui->main_win);
 }
 
-SDL_Rect hex_to_rect(UI *ui, Hex h) {
+static SDL_Rect center_coordinates(UI *ui) {
+	SDL_Rect rect = ui->hex_rect;
+	rect.x = (ui->main_rect.w - ui->hex_rect.w) * .5;
+	rect.y = (ui->main_rect.h - ui->hex_rect.h) * .5;
+	return rect;
+}
+
+static SDL_Rect hex_to_rect(UI *ui, Hex h) {
 	SDL_Rect ctr = center_coordinates(ui);
 	SDL_Rect rect = ui->hex_rect;
 	rect.x = ctr.x + rect.w * (h.r * .5 + h.q);
 	rect.y = ctr.y + rect.h * (h.r * .75);
-	return rect;
-}
-
-SDL_Rect center_coordinates(UI *ui) {
-	SDL_Rect rect = ui->hex_rect;
-	rect.x = (ui->main_rect.w - ui->hex_rect.w) * .5;
-	rect.y = (ui->main_rect.h - ui->hex_rect.h) * .5;
 	return rect;
 }
 
@@ -171,19 +174,21 @@ Hex move_cursor(UI *ui, Content **b, const int side, Hex curs_h) {
 	char *menu_items[2] = {};
 	menu_items[0] = "What, no, never!";
 	menu_items[1] = "Yes of course, this game is not very good.";
-	int cont = 1;
 	SDL_Rect curs_rect = hex_to_rect(ui, curs_h);
 	SDL_Rect ctr = center_coordinates(ui);
 	SDL_Event e;
-	while (cont) {
+	while (1) {
 		SDL_WaitEvent(&e);
-		if ((e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_q) || e.type == SDL_QUIT) {
+		if (e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_q) {
 			if (choice_menu(ui, menu_title, 2, menu_items)) {
 				ui->signal = QUIT;
-				cont = 0;
+				break;
 			} else {
 				print_board(ui, b, side);
 			}
+		} else if (e.type == SDL_QUIT) {
+			ui->signal = QUIT;
+			break;
 		} else if (e.type == SDL_MOUSEMOTION) {
 			//the mouse must be inside the window
 			if (e.motion.x < curs_rect.w * .5 || e.motion.x > ui->main_rect.w - curs_rect.w * .5) continue;
@@ -203,7 +208,7 @@ Hex move_cursor(UI *ui, Content **b, const int side, Hex curs_h) {
 				SDL_BlitSurface(ui->selected_mask, NULL, ui->main_surf, &curs_rect);
 			}
 		} else if (e.type == SDL_MOUSEBUTTONUP && e.button.button == 1) {
-			cont = 0;
+			break;
 		}
 		SDL_UpdateWindowSurface(ui->main_win);
 	}

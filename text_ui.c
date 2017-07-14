@@ -4,7 +4,25 @@
  * See LICENSE file for legal information.
  */
 
-#include "text_ui.h"
+/*
+ * ncurses TUI
+ */
+
+#include "ui.h"
+
+/**
+ * \defgroup controls_text_ui_gp Key Bindings in the Text UI
+ * \{
+ */
+static const int CTRLS_LEFT  = KEY_LEFT;
+static const int CTRLS_BOT   = KEY_DOWN;
+static const int CTRLS_TOP   = KEY_UP;
+static const int CTRLS_RIGHT = KEY_RIGHT;
+static const int CTRLS_OK    = '\n';
+static const int CTRLS_QUIT  = 'q';
+/**
+ * \}
+ */
 
 //General UI functions
 UI *ui_init() {
@@ -57,22 +75,27 @@ void ui_clear(UI *ui) {
 }
 
 //Screen coordinates
-Scryx new_scryx(int y, int x) {
+typedef struct {
+	int y;
+	int x;
+} Scryx;
+
+static Scryx new_scryx(int y, int x) {
 	return (Scryx) { .y = y, .x = x };
 }
 
-Scryx hex_to_scryx(UI *ui, Hex h) {
-	Scryx ctr = center_coordinates(ui);
-	return new_scryx(ctr.y + h.r * 2, ctr.x + h.q * 4 + h.r * 2);
-}
-
-Scryx center_coordinates(UI *ui) {
+static Scryx center_coordinates(UI *ui) {
 	int h, w;
 	getmaxyx(ui->main_win, h, w);
 	return new_scryx(h / 2 - 1, w / 2 - 1);
 }
 
-void sc_move(UI *ui, Scryx sc) {
+static Scryx hex_to_scryx(UI *ui, Hex h) {
+	Scryx ctr = center_coordinates(ui);
+	return new_scryx(ctr.y + h.r * 2, ctr.x + h.q * 4 + h.r * 2);
+}
+
+static void sc_move(UI *ui, Scryx sc) {
 	wmove(ui->main_win, sc.y, sc.x);
 }
 

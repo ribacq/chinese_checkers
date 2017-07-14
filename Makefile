@@ -7,30 +7,22 @@
 CC = gcc
 CFLAGS = -Wall
 OUT = chinese-checkers.out
-OBJ = main.o data_struct.o game.o
+SRC = data_struct.c game.c main.c
 
-TUI = text_ui.o
+TUI = text_ui.c
 TUI_LIBS = -lncurses
 
-GUI = gui.o
+GUI = gui.c
 GUI_LIBS = -lSDL2 -lSDL2_image -lSDL2_ttf -lm
-GUI_CFLAGS = -D _GUI
 
-tui: ${TUI} ${OBJ}
-	${CC} ${CFLAGS} ${TUI_LIBS} -o ${OUT} ${OBJ} ${TUI}
+tui:
+	$(CC) $(CFLAGS) $(TUI_LIBS) -o $(OUT) $(SRC) text_ui.c
 
-gui: ${GUI} ${OBJ}
-	${CC} ${CFLAGS} ${GUI_CFLAGS} ${GUI_LIBS} -o ${OUT} ${OBJ} ${GUI}
-
-data_struct.o: data_struct.h
-game.o:        data_struct.h game.h
-main.o:        data_struct.h game.h
+gui:
+	$(CC) $(CFLAGS) -D_GUI $(GUI_LIBS) -o $(OUT) $(SRC) gui.c
 
 clean:
-	-rm *.o
+	-rm $(OUT)
 
-fclean: clean
-	-rm ${OUT}
-
-.PHONY: all gui clean fclean
+.PHONY: tui gui clean
 

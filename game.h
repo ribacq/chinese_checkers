@@ -14,12 +14,10 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+
 #include "data_struct.h"
-#ifdef _GUI
-	#include "gui.h"
-#else
-	#include "text_ui.h"
-#endif
+#include "ui.h"
 
 /**
  * \brief Data struct to represent the players

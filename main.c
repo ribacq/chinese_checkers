@@ -8,11 +8,7 @@
 #include <string.h>
 
 #include "data_struct.h"
-#ifdef _GUI
-	#include "gui.h"
-#else
-	#include "text_ui.h"
-#endif
+#include "ui.h"
 #include "game.h"
 
 /**
@@ -79,22 +75,22 @@ int main(int argc, char* argv[]){
 			while(ui->signal != QUIT){
 				play_turn(ui, b, side, cur_plr);
 				if(has_won(b, side, cur_plr)){
-				//Game Over
-				char msg[20] = "";
-				sprintf(msg, "%s wins!", cur_plr->name);
-				disp_msg(ui, cur_plr->ct, msg);
-				ui->signal = QUIT;
+					//Game Over
+					char msg[20] = "";
+					sprintf(msg, "%s wins!", cur_plr->name);
+					disp_msg(ui, cur_plr->ct, msg);
+					ui->signal = QUIT;
+				}
+				cur_plr = cur_plr->next;
+				print_board(ui, b, side);
+				print_status(ui, cur_plr->ct, cur_plr->name);
 			}
-			cur_plr = cur_plr->next;
-			print_board(ui, b, side);
-			print_status(ui, cur_plr->ct, cur_plr->name);
+			ui_clear(ui);
+			free(b);
 		}
-		ui_clear(ui);
-		free(b);
+		ui->signal = CONTINUE;
+		user_action = choice_menu(ui, menu_title, menu_len, menu_items);
 	}
-	ui->signal = CONTINUE;
-	user_action = choice_menu(ui, menu_title, menu_len, menu_items);
-}
 //End
 ui_terminate(ui);
 return EXIT_SUCCESS;
