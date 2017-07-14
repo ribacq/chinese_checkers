@@ -1,16 +1,18 @@
 Chinese Checkers
 ================
-A board game written in C for the GNU/Linux CLI using `ncurses.h`. I decided to
+A board game written in C. It can be compiled with two different user interfaces.
+One for the GNU/Linux CLI using `ncurses.h`, and a GUI using [SDL][2]. I decided to
 code this game after having bought a material, wooden one, because CLI games are
 cool, and because I had no idea how a program could represent a hexagon grid. A
 fantastic resource about this subject is [this page on Red Blob Games][1].
 
 Installation
 ------------
-In order to play, download this repository or clone it using git, open the
-folder in a command line, type in the command `make`, and run it with
-`./chinese-checkers`. You may copy or link this binary file to one of your
-`$PATH` directories for easy access.
+```bash
+$ git clone http://github.com/ribacq/chinese-checkers.git
+$ make [tui|gui]
+$ ./chinese-checkers.out
+```
 
 Rules
 =====
@@ -48,4 +50,5 @@ of their pieces on the board. For such a move their are two choices:
 __That’s it!__
 
 [1]: http://www.redblobgames.com/grids/hexagons/
+[2]: http://libsdl.org/
 

@@ -1,3 +1,9 @@
+/*
+ * © Quentin RIBAC, 2017
+ * This is free software.
+ * See LICENSE file for legal information.
+ */
+
 #include "data_struct.h"
 
 //Coordinates data structures

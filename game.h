@@ -1,3 +1,9 @@
+/*
+ * © Quentin RIBAC, 2017
+ * This is free software.
+ * See LICENSE file for legal information.
+ */
+
 #ifndef GAME_H_INCLUDED
 #define GAME_H_INCLUDED
 
@@ -9,7 +15,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include "data_struct.h"
-#include "text_ui.h"
+#ifdef _GUI
+	#include "gui.h"
+#else
+	#include "text_ui.h"
+#endif
 
 /**
  * \brief Data struct to represent the players

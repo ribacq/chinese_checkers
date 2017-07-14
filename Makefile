@@ -1,20 +1,36 @@
-#Chinese Checkers Makefile
+# Chinese Checkers Makefile
+#
+# Written by Quentin RIBAC, 2017
+# This is free software.
+# See LICENSE file for legal information
 
-OBJ = main.o data_struct.o text_ui.o game.o
 CC = gcc
-LIBS = -lncurses
 CFLAGS = -Wall
 OUT = chinese-checkers.out
+OBJ = main.o data_struct.o game.o
 
-all: ${OBJ}
-	${CC} ${CFLAGS} ${LIBS} -o ${OUT} ${OBJ}
+TUI = text_ui.o
+TUI_LIBS = -lncurses
 
-data_struct.o:	data_struct.h
-text_ui.o:	data_struct.h text_ui.h
-game.o:		data_struct.h text_ui.h game.h
-main.o:		data_struct.h text_ui.h game.h
+GUI = gui.o
+GUI_LIBS = -lSDL2 -lSDL2_image -lSDL2_ttf -lm
+GUI_CFLAGS = -D _GUI
 
-.PHONY: clean
+tui: ${TUI} ${OBJ}
+	${CC} ${CFLAGS} ${TUI_LIBS} -o ${OUT} ${OBJ} ${TUI}
+
+gui: ${GUI} ${OBJ}
+	${CC} ${CFLAGS} ${GUI_CFLAGS} ${GUI_LIBS} -o ${OUT} ${OBJ} ${GUI}
+
+data_struct.o: data_struct.h
+game.o:        data_struct.h game.h
+main.o:        data_struct.h game.h
+
 clean:
-	-rm ${OUT} ${OBJ}
+	-rm *.o
+
+fclean: clean
+	-rm ${OUT}
+
+.PHONY: all gui clean fclean
 

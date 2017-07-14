@@ -1,3 +1,9 @@
+/*
+ * © Quentin RIBAC, 2017
+ * This is free software.
+ * See LICENSE file for legal information.
+ */
+
 #ifndef DATA_STRUCT_H_INCLUDED
 #define DATA_STRUCT_H_INCLUDED
 

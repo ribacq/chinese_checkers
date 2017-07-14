@@ -1,13 +1,22 @@
+/*
+ * © Quentin RIBAC, 2017
+ * This is free software.
+ * See LICENSE file for legal information.
+ */
+
 #include <stdlib.h>
 #include <string.h>
+
 #include "data_struct.h"
-#include "text_ui.h"
+#ifdef _GUI
+	#include "gui.h"
+#else
+	#include "text_ui.h"
+#endif
 #include "game.h"
 
 /**
  * \mainpage Chinese Checkers in C
- *
- * This software uses `ncurses.h`.
  */
 
 /**

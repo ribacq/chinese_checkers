@@ -7,38 +7,28 @@
 #ifndef UI_H_INCLUDED
 #define UI_H_INCLUDED
 
-/* User Interface
- * The functions described here must not depend on the technology used in the UI.
+/* Graphical User Interface (SDL)
  */
 
-#include <ncurses.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+#include <math.h>
 #include "data_struct.h"
 
+//color conversions
+#define HEX2MAP(color) SDL_MapRGB(ui->main_surf->format, (0xff0000 & color) >> 16, (0x00ff00 & color) >> 8, (0x0000ff & color))
+#define HEX2STRUCT(color) (SDL_Color) { .r = (0xff0000 & color) >> 16, .g = (0x00ff00 & color) >> 8, .b = (0x0000ff & color), .a = 0xff }
+
 /**
- * \file text_ui.h
- * \brief Text User Interface definition
+ * \file gui.h
+ * \brief Graphical User Interface
  *
- * The functions and data here use ncurses.h in order to display information in
- * the GNU/Linux terminal.
+ * The functions and data here use the SDL library to create graphical windows.
  */
 
 /**
- * \defgroup controls_text_ui_gp Key Bindings in the Text UI
- * \{
- */
-static const int CTRLS_LEFT  = KEY_LEFT;
-static const int CTRLS_BOT   = KEY_DOWN;
-static const int CTRLS_TOP   = KEY_UP;
-static const int CTRLS_RIGHT = KEY_RIGHT;
-static const int CTRLS_OK    = '\n';
-static const int CTRLS_BACK  = 'v';
-static const int CTRLS_QUIT  = 'q';
-/**
- * \}
- */
-
-/**
- * \defgroup general_text_ui_gp General Text UI functions and data
+ * \defgroup general_gui_gp General GUI functions and data
  * \{
  */
 
@@ -46,8 +36,18 @@ static const int CTRLS_QUIT  = 'q';
  * \brief User Interface data structure
  */
 typedef struct {
-	WINDOW *main_win; /**< \brief Pointer to main curses window. */
-	enum { CONTINUE, QUIT } signal; /**< \brief message to the outside. */
+	SDL_Window *main_win;           /**< \brief Pointer to main window */
+	SDL_Surface *main_surf;         /**< \brief Main window’s surface */
+	SDL_Rect main_rect;             /**< \brief window surface size */
+	SDL_Surface *cell_tiles[8];     /**< \brief Cell images */
+	SDL_Surface *selected_mask;     /**< \brief a white border for a single cell */
+	SDL_Surface *unselected_mask;   /**< \brief a black border for a single cell */
+	int cell_colors[8];             /**< \brief the colors in the game */
+	int bg_color;                   /**< \brief window background color */
+	int border_color;               /**< \brief hex border color, used for text */
+	SDL_Rect hex_rect;              /**< \brief default rect for a hexagon with default width and height */
+	TTF_Font *font;                 /**< \brief font used to display text */
+	enum { CONTINUE, QUIT } signal; /**< \brief message to the outside */
 } UI;
 
 /**
@@ -70,32 +70,14 @@ void ui_clear(UI *ui);
  */
 
 /**
- * \brief Screen coordinates
+ * \brief Hex to SDL_Rect conversion
  */
-typedef struct {
-	int y; /**< \brief line number on screen (top-most = 0) */
-	int x; /**< \brief column number on screen (left-most = 0) */
-} Scryx;
-
-/**
- * \brief Constructor for Scryx
- */
-Scryx new_scryx(int y, int x);
-
-/**
- * \brief Hex to Scryx conversion
- */
-Scryx hex_to_scryx(UI *ui, Hex h);
+SDL_Rect hex_to_rect(UI *ui, Hex h);
 
 /**
  * \brief Coordinates of screen center
  */
-Scryx center_coordinates(UI *ui);
-
-/**
- * \brief wmove equivalent, with Scryx parameter
- */
-void sc_move(UI *ui, Scryx sc);
+SDL_Rect center_coordinates(UI *ui);
 
 //Board generals
 /**
@@ -116,6 +98,10 @@ void link(UI *ui, const int side, Hex h1, Hex h2, int mode);
 //User interaction
 /**
  * \brief Interactively moves cursor on the board
+ *
+ * \param curs_h the old cursor position
+ *
+ * \return the new cursor position
  */
 Hex move_cursor(UI *ui, Content **b, const int side, Hex curs_h);
 
