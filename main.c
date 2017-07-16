@@ -51,45 +51,41 @@ int main(int argc, char* argv[]){
 	char* menu_title = "Chinese Checkers";
 	char* menu_items[] = {"Play", "Quit"};
 	int menu_len = sizeof(menu_items)/sizeof(menu_items[0]);
-	int user_action;
 
 	//Print menu and do main loop
-	user_action = choice_menu(ui, menu_title, menu_len, menu_items);
-	while(user_action != menu_len-1){
-		if(user_action == 0){
-			//Board
-			b = init_board(side);
-			
-			//Players
-			int nb_players;
-			Player* cur_plr = init_players(ui, &nb_players);
-			int i;
-			for(i=0; i<nb_players; i++){
-				set_corner_ct(b, side, get_opposite(cur_plr->goal), cur_plr->ct);
-				cur_plr = cur_plr->next;
-			}
+	while((ui->signal = choice_menu(ui, menu_title, menu_len, menu_items) == 0 ? CONTINUE : QUIT) != QUIT) {
+		//Board
+		b = init_board(side);
+		
+		//Players
+		int nb_players;
+		Player* cur_plr = init_players(ui, &nb_players);
+		int i;
+		for(i=0; i<nb_players; i++){
+			set_corner_ct(b, side, get_opposite(cur_plr->goal), cur_plr->ct);
+			if (nb_players == 3)
+				set_corner_ct(b, side, cur_plr->goal, EMPTY);
+			cur_plr = cur_plr->next;
+		}
 
-			//Loop
+		//Loop
+		print_board(ui, b, side);
+		print_status(ui, cur_plr->ct, cur_plr->name);
+		while(ui->signal != QUIT){
+			play_turn(ui, b, side, cur_plr);
+			if(has_won(b, side, cur_plr)){
+				//Game Over
+				char msg[20] = "";
+				sprintf(msg, "%s wins!", cur_plr->name);
+				disp_msg(ui, cur_plr->ct, msg);
+				ui->signal = QUIT;
+			}
+			cur_plr = cur_plr->next;
 			print_board(ui, b, side);
 			print_status(ui, cur_plr->ct, cur_plr->name);
-			while(ui->signal != QUIT){
-				play_turn(ui, b, side, cur_plr);
-				if(has_won(b, side, cur_plr)){
-					//Game Over
-					char msg[20] = "";
-					sprintf(msg, "%s wins!", cur_plr->name);
-					disp_msg(ui, cur_plr->ct, msg);
-					ui->signal = QUIT;
-				}
-				cur_plr = cur_plr->next;
-				print_board(ui, b, side);
-				print_status(ui, cur_plr->ct, cur_plr->name);
-			}
-			ui_clear(ui);
-			free(b);
 		}
-		ui->signal = CONTINUE;
-		user_action = choice_menu(ui, menu_title, menu_len, menu_items);
+		ui_clear(ui);
+		free(b);
 	}
 //End
 ui_terminate(ui);

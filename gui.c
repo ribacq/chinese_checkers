@@ -185,6 +185,7 @@ Hex move_cursor(UI *ui, Content **b, const int side, Hex curs_h) {
 				break;
 			} else {
 				print_board(ui, b, side);
+				print_status(ui, EMPTY, "Euh…");
 			}
 		} else if (e.type == SDL_QUIT) {
 			ui->signal = QUIT;
@@ -304,6 +305,9 @@ int choice_menu(UI *ui, char *title, const int len, char **items) {
 				}
 				SDL_UpdateWindowSurface(ui->main_win);
 			}
+		} else if (e.type == SDL_QUIT) {
+			ui->signal = QUIT;
+			return -1;
 		}
 	}
 }
@@ -314,6 +318,8 @@ void ui_prompt_string(UI *ui, char *dst, const char *prompt) {
 	SDL_Event e;
 	char *lengths;
 	int len = 0;
+	int cursor_u8 = 0;
+	int cursor_c = 0;
 	int done = 0;
 	int redraw = 1;
 	while (!done) {
@@ -322,6 +328,14 @@ void ui_prompt_string(UI *ui, char *dst, const char *prompt) {
 			hex_and_text(ui, EMPTY, -1, (ui->main_rect.h * 0.65 - ui->hex_rect.h) / 2, prompt);
 			hex_and_text(ui, EMPTY, -1, -1, dst);
 			SDL_UpdateWindowSurface(ui->main_win);
+			char *s1 = (char *) calloc(sizeof(char), cursor_c);
+			char *s2 = (char *) calloc(sizeof(char), strlen(dst) - cursor_c);
+			s1 = strncpy(s1, dst, cursor_c);
+			s2 = strcpy(s2, dst + cursor_c);
+			SDL_Log("c: %d, u8: %d", cursor_c, cursor_u8);
+			SDL_Log("%s | %s", s1, s2);
+			free(s1);
+			free(s2);
 			redraw = 0;
 		}
 		SDL_WaitEvent(&e);
@@ -333,19 +347,20 @@ void ui_prompt_string(UI *ui, char *dst, const char *prompt) {
 			strcat(dst, e.text.text);
 			lengths = (char *) realloc(lengths, ++len * sizeof(char));
 			lengths[len - 1] = strlen(e.text.text);
-			SDL_Log("last_len: %d", lengths[len - 1]);
+			cursor_u8++;
+			cursor_c += lengths[len - 1];
 			redraw = 1;
 			break;
 		case SDL_KEYDOWN:
 			if (e.key.keysym.sym == SDLK_BACKSPACE) {
 				if (len > 0) {
-					SDL_Log("‘%s’ - ‘%.*s’", dst, lengths[len - 1], dst + strlen(dst) - lengths[len - 1]);
 					char *new_dst = (char *) calloc(strlen(dst) - lengths[len - 1] + 1, sizeof(char));
 					strncpy(new_dst, dst, strlen(dst) - lengths[len - 1]);
 					strcpy(dst, new_dst);
 					free(new_dst);
+					cursor_u8--;
+					cursor_c -= lengths[len - 1];
 					lengths = (char *) realloc(lengths, --len * sizeof(char));
-					SDL_Log("--> ‘%s’ (%ld)", dst, strlen(dst));
 					redraw = 1;
 				}
 			} else if (e.key.keysym.sym == SDLK_RETURN) {
@@ -353,6 +368,7 @@ void ui_prompt_string(UI *ui, char *dst, const char *prompt) {
 			}
 			break;
 		case SDL_QUIT:
+			ui->signal = QUIT;
 			done = 1;
 			break;
 		default:
@@ -387,9 +403,15 @@ void disp_msg(UI *ui, Content ct, char *msg) {
 	SDL_UpdateWindowSurface(ui->main_win);
 
 	SDL_Event e;
-	do {
+	while (1) {
 		SDL_WaitEvent(&e);
-	} while (e.type != SDL_KEYUP && (e.type != SDL_MOUSEBUTTONUP || e.button.button != 1));
+		if (e.type == SDL_KEYUP || (e.type == SDL_MOUSEBUTTONUP && e.button.button == 1)) {
+			break;
+		} else if (e.type == SDL_QUIT) {
+			ui->signal = QUIT;
+			break;
+		}
+	}
 	ui_clear(ui);
 }
 
