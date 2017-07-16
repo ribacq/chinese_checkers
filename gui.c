@@ -222,7 +222,7 @@ Hex move_cursor(UI *ui, Content **b, const int side, Hex curs_h) {
  *
  * \return an SDL_Rect containing the displayed hex and text
  */
-static SDL_Rect hex_and_text(UI *ui, Content ct, int x, int y, char *text) {
+static SDL_Rect hex_and_text(UI *ui, Content ct, int x, int y, const char *text) {
 	const int x_centered = x < 0 || x > ui->main_rect.w;
 	const int y_centered = y < 0 || y > ui->main_rect.h;
 		
@@ -237,6 +237,7 @@ static SDL_Rect hex_and_text(UI *ui, Content ct, int x, int y, char *text) {
 	if (text_rect.x != -1)
 		SDL_FillRect(ui->main_surf, &text_rect, HEX2MAP(ui->bg_color));
 	TTF_SizeUTF8(ui->font, text, &(text_rect.w), &(text_rect.h));
+	text_rect.w = text_rect.w < 100 ? 100 : text_rect.w;
 
 	//position hex and text
 	if (x_centered)
@@ -251,7 +252,6 @@ static SDL_Rect hex_and_text(UI *ui, Content ct, int x, int y, char *text) {
 		.w = hex_rect.w * 1.25 + text_rect.w,
 		.h = hex_rect.h 
 	};
-	global_rect.w = global_rect.w < 100 ? 100 : global_rect.w;
 	
 	//draw
 	SDL_FillRect(ui->main_surf, &global_rect, HEX2MAP(ui->border_color));
@@ -309,14 +309,69 @@ int choice_menu(UI *ui, char *title, const int len, char **items) {
 }
 
 void ui_prompt_string(UI *ui, char *dst, const char *prompt) {
-	//nothing
+	SDL_StartTextInput();
+	strcpy(dst, "");
+	SDL_Event e;
+	char *lengths;
+	int len = 0;
+	int done = 0;
+	int redraw = 1;
+	while (!done) {
+		if (redraw) {
+			ui_clear(ui);
+			hex_and_text(ui, EMPTY, -1, (ui->main_rect.h * 0.65 - ui->hex_rect.h) / 2, prompt);
+			hex_and_text(ui, EMPTY, -1, -1, dst);
+			SDL_UpdateWindowSurface(ui->main_win);
+			redraw = 0;
+		}
+		SDL_WaitEvent(&e);
+		switch (e.type) {
+		case SDL_TEXTEDITING:
+			//TODO: see what this is about...
+			break;
+		case SDL_TEXTINPUT:
+			strcat(dst, e.text.text);
+			lengths = (char *) realloc(lengths, ++len * sizeof(char));
+			lengths[len - 1] = strlen(e.text.text);
+			SDL_Log("last_len: %d", lengths[len - 1]);
+			redraw = 1;
+			break;
+		case SDL_KEYDOWN:
+			if (e.key.keysym.sym == SDLK_BACKSPACE) {
+				if (len > 0) {
+					SDL_Log("‘%s’ - ‘%.*s’", dst, lengths[len - 1], dst + strlen(dst) - lengths[len - 1]);
+					char *new_dst = (char *) calloc(strlen(dst) - lengths[len - 1] + 1, sizeof(char));
+					strncpy(new_dst, dst, strlen(dst) - lengths[len - 1]);
+					strcpy(dst, new_dst);
+					free(new_dst);
+					lengths = (char *) realloc(lengths, --len * sizeof(char));
+					SDL_Log("--> ‘%s’ (%ld)", dst, strlen(dst));
+					redraw = 1;
+				}
+			} else if (e.key.keysym.sym == SDLK_RETURN) {
+				done = strlen(dst) > 0;
+			}
+			break;
+		case SDL_QUIT:
+			done = 1;
+			break;
+		default:
+			break;
+		}
+	}
+	SDL_StopTextInput();
+	free(lengths);
 }
 
 void print_status(UI *ui, Content ct, char *name) {
 	//call hex_and_text
+	static SDL_Rect last_rect = { .x = 0, .y = 0, .w = 0, .h = 0 };
+	last_rect.x = ui->hex_rect.w / 2;
+	last_rect.y = ui->hex_rect.h / 2;
 	char text[64];
 	sprintf(text, "Current player: %s", name);
-	hex_and_text(ui, ct, ui->hex_rect.w * .5, ui->hex_rect.h * .5, text);
+	SDL_FillRect(ui->main_surf, &last_rect, HEX2MAP(ui->bg_color));
+	last_rect = hex_and_text(ui, ct, last_rect.x, last_rect.y, text);
 
 	//update display
 	SDL_UpdateWindowSurface(ui->main_win);
