@@ -326,16 +326,11 @@ void ui_prompt_string(UI *ui, char *dst, const char *prompt) {
 		if (redraw) {
 			ui_clear(ui);
 			hex_and_text(ui, EMPTY, -1, (ui->main_rect.h * 0.65 - ui->hex_rect.h) / 2, prompt);
-			hex_and_text(ui, EMPTY, -1, -1, dst);
+			char *sC = (char *) calloc(sizeof(char), strlen(dst) + 1);
+			sprintf(sC, "%.*s|%s", cursor_c, dst, dst + cursor_c);
+			hex_and_text(ui, EMPTY, -1, -1, sC);
 			SDL_UpdateWindowSurface(ui->main_win);
-			char *s1 = (char *) calloc(sizeof(char), cursor_c);
-			char *s2 = (char *) calloc(sizeof(char), strlen(dst) - cursor_c);
-			s1 = strncpy(s1, dst, cursor_c);
-			s2 = strcpy(s2, dst + cursor_c);
-			SDL_Log("c: %d, u8: %d", cursor_c, cursor_u8);
-			SDL_Log("%s | %s", s1, s2);
-			free(s1);
-			free(s2);
+			free(sC);
 			redraw = 0;
 		}
 		SDL_WaitEvent(&e);
@@ -344,27 +339,82 @@ void ui_prompt_string(UI *ui, char *dst, const char *prompt) {
 			//TODO: see what this is about...
 			break;
 		case SDL_TEXTINPUT:
-			strcat(dst, e.text.text);
-			lengths = (char *) realloc(lengths, ++len * sizeof(char));
-			lengths[len - 1] = strlen(e.text.text);
-			cursor_u8++;
-			cursor_c += lengths[len - 1];
+			//insert in lengths
+			lengths = (char *) realloc(lengths, (len + 1) * sizeof(char));
+			memmove(lengths + cursor_u8 + 1, lengths + cursor_u8, len - cursor_u8);
+			lengths[cursor_u8] = (char) strlen(e.text.text);
+			len++;
+
+			//insert in dst
+			char *new_dst = (char *) calloc(strlen(dst) + lengths[cursor_u8], sizeof(char));
+			sprintf(new_dst, "%.*s%s%s", cursor_c, dst, e.text.text, dst + cursor_c);
+			dst = strcpy(dst, new_dst);
+			free(new_dst);
+			cursor_c += lengths[cursor_u8++];
+
 			redraw = 1;
 			break;
 		case SDL_KEYDOWN:
-			if (e.key.keysym.sym == SDLK_BACKSPACE) {
-				if (len > 0) {
-					char *new_dst = (char *) calloc(strlen(dst) - lengths[len - 1] + 1, sizeof(char));
-					strncpy(new_dst, dst, strlen(dst) - lengths[len - 1]);
+			switch (e.key.keysym.sym) {
+			case SDLK_BACKSPACE:
+				if (cursor_u8 > 0) {
+					//delete from dst
+					char *new_dst = (char *) calloc(strlen(dst) - lengths[cursor_u8 - 1] + 1, sizeof(char));
+					sprintf(new_dst, "%.*s%s", cursor_c - lengths[cursor_u8 - 1], dst, dst + cursor_c);
 					strcpy(dst, new_dst);
 					free(new_dst);
+					cursor_c -= lengths[cursor_u8 - 1];
+
+					//delete from lengths
+					memmove(lengths + cursor_u8 - 1, lengths + cursor_u8, len - cursor_u8);
+					lengths = (char *) realloc(lengths, --len * sizeof(char));
 					cursor_u8--;
-					cursor_c -= lengths[len - 1];
+					redraw = 1;
+				}
+				break;
+			case SDLK_DELETE:
+				if (cursor_u8 < len) {
+					//delete from dst
+					char *new_dst = (char *) calloc(strlen(dst) - lengths[cursor_u8] + 1, sizeof(char));
+					sprintf(new_dst, "%.*s%s", cursor_c, dst, dst + cursor_c + lengths[cursor_u8]);
+					strcpy(dst, new_dst);
+					free(new_dst);
+
+					//delete from lengths
+					memmove(lengths + cursor_u8, lengths + cursor_u8 + 1, len - cursor_u8 - 1);
 					lengths = (char *) realloc(lengths, --len * sizeof(char));
 					redraw = 1;
 				}
-			} else if (e.key.keysym.sym == SDLK_RETURN) {
+				break;
+			case SDLK_RETURN:
 				done = strlen(dst) > 0;
+				break;
+			case SDLK_LEFT:
+				if (cursor_u8 > 0) {
+					cursor_c -= lengths[--cursor_u8];
+					redraw = 1;
+				}
+				break;
+			case SDLK_RIGHT:
+				if (cursor_u8 < len) {
+					cursor_c += lengths[cursor_u8++];
+					redraw = 1;
+				}
+				break;
+			case SDLK_HOME:
+				cursor_u8 = 0;
+				cursor_c = 0;
+				redraw = 1;
+				break;
+			case SDLK_END:
+				cursor_u8 = len;
+				cursor_c = 0;
+				for (int i = 0; i < len; i++)
+					cursor_c += lengths[i];
+				redraw = 1;
+				break;
+			default:
+				break;
 			}
 			break;
 		case SDL_QUIT:
